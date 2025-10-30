@@ -16,7 +16,7 @@ class PointTest {
     @ValueSource(longs = {
             -1L, -10L, -100L, Long.MIN_VALUE
     })
-    void throwsExceptons_whenBalanceIsLessZero(Long balance) {
+    void throwsException_whenBalanceIsLessZero(Long balance) {
         //given
         Long userId = 1L;
 
