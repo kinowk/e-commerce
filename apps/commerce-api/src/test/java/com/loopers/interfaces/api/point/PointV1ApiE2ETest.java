@@ -14,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 
 import java.util.function.Function;
 
@@ -28,6 +25,7 @@ class PointV1ApiE2ETest {
 
     private static final String SAVED_USER = "testuser";
     private static final Long INITIAL_BALANCE = 0L;
+    private static final String X_USER_ID = "X-USER-ID";
     private static final String ENDPOINT_CHARGE_POINT = "/api/v1/points/charge";
     private static final Function<Long, String> ENDPOINT_GET_POINT = userId -> "/api/v1/points/" + userId;
 
@@ -112,11 +110,14 @@ class PointV1ApiE2ETest {
             Long userId = -1L;
             String requestUrl = ENDPOINT_GET_POINT.apply(userId);
 
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(X_USER_ID, String.valueOf(userId));
+            HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
             //when
             ResponseEntity<ApiResponse<PointResponse.GetPoint>> response = testRestTemplate.exchange(
                     requestUrl,
                     HttpMethod.GET,
-                    new HttpEntity<>(null),
+                    httpEntity,
                     new ParameterizedTypeReference<>() {
                     }
             );
@@ -135,14 +136,20 @@ class PointV1ApiE2ETest {
         void returnsPoint_whenGetPointSuccess() {
             //given
             User savedUser = userJpaRepository.findByLoginId(SAVED_USER).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
-            String requestUrl = ENDPOINT_GET_POINT.apply(savedUser.getId());
+            Long userId = savedUser.getId();
+            String requestUrl = ENDPOINT_GET_POINT.apply(userId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(X_USER_ID, String.valueOf(userId));
+            HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
             //when
             ResponseEntity<ApiResponse<PointResponse.GetPoint>> response = testRestTemplate.exchange(
                     requestUrl,
                     HttpMethod.GET,
-                    new HttpEntity<>(null),
-                    new ParameterizedTypeReference<>() {}
+                    httpEntity,
+                    new ParameterizedTypeReference<>() {
+                    }
             );
 
             //then
@@ -151,6 +158,26 @@ class PointV1ApiE2ETest {
             ApiResponse<PointResponse.GetPoint> body = response.getBody();
 
             assertThat(body.data().balance()).isEqualTo(INITIAL_BALANCE);
+        }
+
+        @DisplayName("X-USER-ID 헤더가 없을 경우, 400 Bad Request 응답을 반환한다.")
+        @Test
+        void throwsException_whenHeaderNotContains() {
+            //given
+            User savedUser = userJpaRepository.findByLoginId(SAVED_USER).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+            String requestUrl = ENDPOINT_GET_POINT.apply(savedUser.getId());
+
+            //when
+            ResponseEntity<ApiResponse<PointResponse.GetPoint>> response = testRestTemplate.exchange(
+                    requestUrl,
+                    HttpMethod.GET,
+                    new HttpEntity<>(null),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+
+            //then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         }
     }
 }

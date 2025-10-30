@@ -2,6 +2,8 @@ package com.loopers.interfaces.api.point;
 
 import com.loopers.interfaces.api.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,7 +15,10 @@ public interface PointV1ApiSpec {
             summary = "포인트 조회",
             description = "사용자 ID로 포인트를 조회합니다."
     )
-    ApiResponse<PointResponse.GetPoint> getPoint(@PathVariable Long userId);
+    ApiResponse<PointResponse.GetPoint> getPoint(
+            @Parameter(name = "X-USER-ID", description = "헤더 ID", in = ParameterIn.HEADER, required = true) Long header,
+            @PathVariable Long userId
+    );
 
     @Operation(
             summary = "포인트 충전",

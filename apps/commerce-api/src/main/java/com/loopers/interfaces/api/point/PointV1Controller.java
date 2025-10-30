@@ -16,7 +16,10 @@ public class PointV1Controller implements PointV1ApiSpec {
 
     @GetMapping("/{userId}")
     @Override
-    public ApiResponse<PointResponse.GetPoint> getPoint(@PathVariable Long userId) {
+    public ApiResponse<PointResponse.GetPoint> getPoint(
+            @RequestHeader("X-USER-ID") Long header,
+            @PathVariable Long userId
+    ) {
         PointOutput.GetPoint output = pointFacade.getPoint(userId);
         PointResponse.GetPoint response = PointResponse.GetPoint.from(output);
         return ApiResponse.success(response);
