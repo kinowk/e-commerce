@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class PointService {
@@ -15,12 +13,14 @@ public class PointService {
     private final PointRepository pointRepository;
 
     @Transactional(readOnly = true)
-    public Optional<PointResult.GetPoint> getPoint(Long userId) {
+    public PointResult.GetPoint getPoint(Long userId) {
         return pointRepository.findByUserId(userId)
-                .map(PointResult.GetPoint::from);
+                .map(PointResult.GetPoint::from)
+                .orElse(null);
+
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public PointResult.Charge charge(PointCommand.Charge command) {
         Long userId = command.userId();
         Long amount = command.amount();
