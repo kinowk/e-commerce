@@ -41,6 +41,9 @@ public class Point {
         if (amount <= 0)
             throw new CoreException(ErrorType.BAD_REQUEST, "충전 금액은 0보다 커야 합니다.");
 
+        if (this.balance > Long.MAX_VALUE - amount)
+            throw new CoreException(ErrorType.BAD_REQUEST, "잔액 한도를 초과할 수 없습니다.");
+
         this.balance += amount;
 
         return this.balance;
