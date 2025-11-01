@@ -83,7 +83,7 @@ class UserServiceIntegrationTest {
 
         @DisplayName("이미 가입된 ID로 회원가입 시도 시, 실패한다.")
         @Test
-        void throwsException_whenDuplicatedLoingId() {
+        void throwsException_whenDuplicatedLoginId() {
             String loginId = "kinowk";
             UserRequest.Join request = new UserRequest.Join(
                     loginId,
@@ -94,7 +94,7 @@ class UserServiceIntegrationTest {
 
             UserRequest.Join requestSameLoginId = new UserRequest.Join(
                     loginId,
-                    Gender.FEMAIL,
+                    Gender.FEMALE,
                     "2000-02-02",
                     "kinowk2@gmail.com"
             );
@@ -151,7 +151,7 @@ class UserServiceIntegrationTest {
             Optional<UserResult.GetUser> result = userService.findUserByLoginId(loginId);
 
             //then
-            assertThat(result.isEmpty()).isTrue();
+            assertThat(result).isEmpty();
         }
 
     }

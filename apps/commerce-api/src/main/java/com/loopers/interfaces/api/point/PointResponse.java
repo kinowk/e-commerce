@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PointResponse {
 
-    public record Charge(Long Id, Long userId, Long balance) {
+    public record Charge(Long id, Long userId, Long balance) {
         public static Charge from(PointOutput.Charge output) {
             return new Charge(
                     output.id(),

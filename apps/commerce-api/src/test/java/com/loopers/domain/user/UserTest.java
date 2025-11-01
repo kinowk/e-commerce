@@ -24,7 +24,7 @@ class UserTest {
                 "loginIdOver10",
                 "_underscore"
         })
-        void throwsException_whenInvalidLoingId(String loginId) {
+        void throwsException_whenInvalidLoginId(String loginId) {
             //given
             Gender gender = Gender.MALE;
             String birthDate = "2000-01-01";
@@ -56,7 +56,7 @@ class UserTest {
         void throwsException_whenInvalidEmail(String email) {
             //given
             String loginId = "kinowk123";
-            Gender gender = Gender.FEMAIL;
+            Gender gender = Gender.FEMALE;
             String birthDate = "2000-01-01";
 
             //when & then

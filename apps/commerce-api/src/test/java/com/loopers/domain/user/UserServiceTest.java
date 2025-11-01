@@ -80,7 +80,7 @@ class UserServiceTest {
 
             UserRequest.Join requestSameLoginId = new UserRequest.Join(
                     loginId,
-                    Gender.FEMAIL,
+                    Gender.FEMALE,
                     "2000-02-02",
                     "kinowk2@gmail.com"
             );

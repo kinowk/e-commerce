@@ -2,5 +2,5 @@ package com.loopers.domain.user;
 
 public enum Gender {
     MALE,
-    FEMAIL
+    FEMALE
 }

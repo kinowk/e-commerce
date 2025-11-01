@@ -101,29 +101,7 @@ class PointV1ApiE2ETest {
             assertThat(body.data().balance()).isEqualTo(INITIAL_BALANCE + amount);
         }
 
-        @DisplayName("존재하지 않는 유저로 요청할 경우, `404 Not Found` 응답을 반환한다.")
-        @Test
-        void throwsException_whenInvalidUser() {
-            //given
-            Long userId = -1L;
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set(X_USER_ID, String.valueOf(userId));
-            HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
-            //when
-            ResponseEntity<ApiResponse<PointResponse.GetPoint>> response = testRestTemplate.exchange(
-                    ENDPOINT_GET_POINT,
-                    HttpMethod.GET,
-                    httpEntity,
-                    new ParameterizedTypeReference<>() {
-                    }
-            );
-
-            //then
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        }
     }
-
     @DisplayName("포인트 조회 시")
     @Nested
     class Search {
@@ -154,6 +132,28 @@ class PointV1ApiE2ETest {
             ApiResponse<PointResponse.GetPoint> body = response.getBody();
 
             assertThat(body.data().balance()).isEqualTo(INITIAL_BALANCE);
+        }
+
+        @DisplayName("존재하지 않는 유저로 요청할 경우, `404 Not Found` 응답을 반환한다.")
+        @Test
+        void throwsException_whenInvalidUser() {
+            //given
+            Long userId = -1L;
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(X_USER_ID, String.valueOf(userId));
+            HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
+            //when
+            ResponseEntity<ApiResponse<PointResponse.GetPoint>> response = testRestTemplate.exchange(
+                    ENDPOINT_GET_POINT,
+                    HttpMethod.GET,
+                    httpEntity,
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+
+            //then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         }
 
         @DisplayName("X-USER-ID 헤더가 없을 경우, 400 Bad Request 응답을 반환한다.")
