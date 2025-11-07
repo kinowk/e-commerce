@@ -79,6 +79,9 @@ sequenceDiagram
     Product -->> Client: "상품이 존재하지 않습니다" 메시지 반환
     end
     Controller ->> Like: 상품 좋아요 등록 (사용자 ID, 상품 ID)
+    alt 이미 좋아요 한 상품인 경우
+    Controller -->> Like: 상품 좋아요 유지(사용자 ID, 상품 ID)
+    end
 ```
 
 ---
@@ -103,6 +106,9 @@ sequenceDiagram
     Product -->> Client: "상품이 존재하지 않습니다" 메시지 반환
     end
     Controller ->> Like: 상품 좋아요 취소 (사용자 ID, 상품 ID)
+    alt 상품 좋아요 상태가 아닌 경우
+    Controller ->> Like: 상품 좋아요 취소 유지 (사용자 ID, 상품 ID)
+    end
 ```
 
 ---
