@@ -22,7 +22,7 @@ public interface UserV1ApiSpec {
             description = "로그인 ID로 사용자를 조회합니다."
     )
     ApiResponse<UserResponse.GetUser> getUser(
-            @Schema(name = "로그인 ID", description = "조회할 사용자 ID") String loginId
+            @Schema(name = "X-USER-ID", description = "조회할 사용자 ID") Long userId
     );
 
 }
