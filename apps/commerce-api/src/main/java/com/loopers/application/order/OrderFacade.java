@@ -54,8 +54,7 @@ public class OrderFacade {
         List<Long> productOptionIds = products.stream()
                 .map(OrderInput.Create.Product::productOptionId)
                 .toList();
-        ProductResult.GetProductOptions options = productService.getProductOptions(productOptionIds)
-                .orElseThrow(() -> new CoreException(ErrorType.BAD_REQUEST));
+        ProductResult.GetProductOptions options = productService.getProductOptions(productOptionIds);
 
         OrderCart cart = OrderCart.from(input, options);
 

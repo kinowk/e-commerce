@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.toMap;
@@ -21,11 +20,10 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public Optional<ProductResult.GetProductDetail> getProductDetail(Long productId) {
-        if (productId == null)
-            return Optional.empty();
-
-        return productRepository.findById(productId).map(ProductResult.GetProductDetail::from);
+    public ProductResult.GetProductDetail getProductDetail(Long productId) {
+        return productRepository.findById(productId)
+                .map(ProductResult.GetProductDetail::from)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품 상세 정보가 존재하지 않습니다."));
     }
 
     @Transactional(readOnly = true)
@@ -37,12 +35,10 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<ProductResult.GetProductOptions> getProductOptions(List<Long> productOptionIds) {
-        if (productOptionIds.isEmpty())
-            return Optional.empty();
-
+    public ProductResult.GetProductOptions getProductOptions(List<Long> productOptionIds) {
         return productRepository.findProductOptionsByIds(productOptionIds)
-                .map(ProductResult.GetProductOptions::from);
+                .map(ProductResult.GetProductOptions::from)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품 옵션이 존재하지 않습니다."));
     }
 
     @Transactional

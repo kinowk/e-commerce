@@ -26,8 +26,7 @@ public class ProductFacade {
     }
 
     public ProductOutput.GetProductDetail getProductDetail(Long productId) {
-        ProductResult.GetProductDetail productDetail = productService.getProductDetail(productId)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품이 존재하지 않습니다."));
+        ProductResult.GetProductDetail productDetail = productService.getProductDetail(productId);
 
         BrandResult.GetBrand brand = brandService.getBrand(productDetail.brandId());
 
