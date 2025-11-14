@@ -19,8 +19,7 @@ public class LikeFacade {
     private final LikeService likeService;
 
     public void like(LikeInput.Like input) {
-        userService.findUser(input.userId())
-                .orElseThrow(() -> new CoreException(ErrorType.BAD_REQUEST, "존재하지 않는 사용자입니다."));
+        userService.getUser(input.userId());
 
         productService.getProductDetail(input.productId())
                 .orElseThrow(() -> new CoreException(ErrorType.BAD_REQUEST, "존재하지 않는 상품입니다."));
@@ -30,8 +29,7 @@ public class LikeFacade {
     }
 
     public void dislike(LikeInput.dislike input) {
-        userService.findUser(input.userId())
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다."));
+        userService.getUser(input.userId());
 
         productService.getProductDetail(input.productId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다."));
@@ -41,8 +39,7 @@ public class LikeFacade {
     }
 
     public LikeOutput.LikeProducts getLikeProducts(Long userId) {
-        userService.findUser(userId)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다."));
+        userService.getUser(userId);
 
         LikeResult.GetLikeProducts result = likeService.getLikeProducts(userId);
         return LikeOutput.LikeProducts.from(result);

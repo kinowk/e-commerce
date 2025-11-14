@@ -29,8 +29,7 @@ public class OrderFacade {
     private final PaymentService paymentService;
 
     public OrderOutput.GetOrderDetail getOrderDetail(OrderInput.GetOrderDetail input) {
-        userService.findUser(input.userId())
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다."));
+        userService.getUser(input.userId());
 
         OrderCommand.GetOrderDetail orderCommand = input.toCommand();
         OrderResult.GetOrderDetail order = orderService.getOrderDetail(orderCommand)
@@ -50,8 +49,7 @@ public class OrderFacade {
         if (products.isEmpty())
             throw new CoreException(ErrorType.BAD_REQUEST, "주문 상품이 없습니다.");
 
-        userService.findUser(input.userId())
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다."));
+        userService.getUser(input.userId());
 
         List<Long> productOptionIds = products.stream()
                 .map(OrderInput.Create.Product::productOptionId)
