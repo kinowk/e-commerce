@@ -32,8 +32,7 @@ public class OrderFacade {
         userService.getUser(input.userId());
 
         OrderCommand.GetOrderDetail orderCommand = input.toCommand();
-        OrderResult.GetOrderDetail order = orderService.getOrderDetail(orderCommand)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+        OrderResult.GetOrderDetail order = orderService.getOrderDetail(orderCommand);
 
         PaymentCommand.GetPayment paymentCommand = new PaymentCommand.GetPayment(input.orderId(), input.userId());
 

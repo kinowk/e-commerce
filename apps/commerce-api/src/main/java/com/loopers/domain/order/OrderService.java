@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -17,11 +16,11 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     @Transactional(readOnly = true)
-    public Optional<OrderResult.GetOrderDetail> getOrderDetail(OrderCommand.GetOrderDetail command) {
-        Long orderId = command.orderId();
-        return orderRepository.findOrderDetailById(orderId)
+    public OrderResult.GetOrderDetail getOrderDetail(OrderCommand.GetOrderDetail command) {
+        return orderRepository.findOrderDetailById(command.orderId())
                 .filter(order -> Objects.equals(order.getUserId(), command.userId()))
-                .map(OrderResult.GetOrderDetail::from);
+                .map(OrderResult.GetOrderDetail::from)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "주문 상세 정보가 존재하지 않습니다."));
     }
 
     @Transactional
