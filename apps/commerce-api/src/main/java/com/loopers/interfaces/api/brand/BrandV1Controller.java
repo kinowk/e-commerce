@@ -21,8 +21,7 @@ public class BrandV1Controller implements BrandV1ApiSpec {
     @GetMapping("/{brandId}")
     @Override
     public ApiResponse<BrandResponse.GetBrand> getBrand(@PathVariable Long brandId) {
-        BrandResult.GetBrand result = brandService.findBrand(brandId)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "브랜드가 존재하지 않습니다."));
+        BrandResult.GetBrand result = brandService.getBrand(brandId);
         BrandResponse.GetBrand.from(result);
         return null;
     }

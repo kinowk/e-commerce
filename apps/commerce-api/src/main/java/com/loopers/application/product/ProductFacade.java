@@ -29,11 +29,10 @@ public class ProductFacade {
         ProductResult.GetProductDetail productDetail = productService.getProductDetail(productId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품이 존재하지 않습니다."));
 
-        BrandResult.GetBrand getBrand = brandService.findBrand(productDetail.brandId())
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+        BrandResult.GetBrand brand = brandService.getBrand(productDetail.brandId());
 
         Long likeCount = likeService.getLikeCount(productId);
 
-        return ProductOutput.GetProductDetail.from(productDetail, likeCount, getBrand);
+        return ProductOutput.GetProductDetail.from(productDetail, likeCount, brand);
     }
 }
