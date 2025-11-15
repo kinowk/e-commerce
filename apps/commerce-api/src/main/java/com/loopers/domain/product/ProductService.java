@@ -62,7 +62,7 @@ public class ProductService {
 
         Map<Long, Stock> stockMap = productRepository.findStocksByProductOptionIdsForUpdate(productOptionIds)
                 .stream()
-                .collect(toMap(Stock::getProductOptionId, Function.identity()));
+                .collect(toMap(s -> s.getProductOption().getId(), Function.identity()));
 
         if (stockMap.size() != productOptionIds.size())
             throw new CoreException(ErrorType.NOT_FOUND);

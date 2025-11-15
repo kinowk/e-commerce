@@ -21,10 +21,10 @@ public class Stock {
     @Column(name = "stock_id", nullable = false, updatable = false)
     private Long id;
 
-    @Column(name = "ref_product_option_id", nullable = false, updatable = false, unique = true)
-    private Long productOptionId;
+    @OneToOne
+    @JoinColumn(name = "ref_product_option_id", nullable = false, updatable = false, unique = true)
+    private ProductOption productOption;
 
-    @Embedded
     @Column(name = "quantity")
     private Integer quantity;
 
@@ -32,18 +32,23 @@ public class Stock {
     private ZonedDateTime updatedAt;
 
     @Builder
-    public Stock(Integer quantity, ZonedDateTime updatedAt) {
+    public Stock(ProductOption productOption, Integer quantity, ZonedDateTime updatedAt) {
         if (quantity == null || quantity < 0)
             throw new CoreException(ErrorType.BAD_REQUEST);
 
+        this.productOption = productOption;
         this.quantity = quantity;
         this.updatedAt = ZonedDateTime.now();
     }
 
     public void deduct(int amount) {
+        if (amount <= 0)
+            throw new CoreException(ErrorType.BAD_REQUEST, "차감 수량은 1개 이상이어야 합니다.");
+
         if (this.quantity < amount)
             throw new CoreException(ErrorType.BAD_REQUEST, "재고가 부족합니다.");
 
         this.quantity = this.quantity - amount;
+        this.updatedAt = ZonedDateTime.now();
     }
 }

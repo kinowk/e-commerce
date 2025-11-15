@@ -26,8 +26,7 @@ public class ProductOption extends BaseEntity {
     @Column(name = "size")
     private String size;
 
-    @Embedded
-    @AttributeOverride(name = "price", column = @Column(name = "extra_price", nullable = false))
+    @Column(name = "extra_price", nullable = false)
     private Integer extraPrice;
 
     @OneToOne(mappedBy = "productOption", cascade = CascadeType.ALL, orphanRemoval = true)

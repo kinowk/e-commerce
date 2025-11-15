@@ -27,8 +27,7 @@ public class Product extends BaseEntity {
     @Column(name = "product_name", nullable = false)
     private String name;
 
-    @Embedded
-    @AttributeOverride(name = "price", column = @Column(name = "base_price", nullable = false))
+    @Column(name = "base_price", nullable = false)
     private Integer basePrice;
 
     @Column(name = "like_count", nullable = false)

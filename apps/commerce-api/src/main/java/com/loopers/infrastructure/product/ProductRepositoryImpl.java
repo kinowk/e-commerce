@@ -88,7 +88,7 @@ public class ProductRepositoryImpl implements ProductRepository {
                 )
                 .from(po)
                 .join(p).on(p.id.eq(po.id))
-                .join(s).on(s.productOptionId.eq(po.id))
+                .join(s).on(s.productOption.id.eq(po.id))
                 .where(po.id.in(productOptionIds))
                 .stream()
                 .map(row -> new ProductQueryResult.ProductOptions.Item(
