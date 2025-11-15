@@ -14,7 +14,7 @@ public class PointV1Controller implements PointV1ApiSpec {
 
     private final PointFacade pointFacade;
 
-    @GetMapping("/users")
+    @GetMapping
     @Override
     public ApiResponse<PointResponse.GetPoint> getPoint(
             @RequestHeader("X-USER-ID") Long userId

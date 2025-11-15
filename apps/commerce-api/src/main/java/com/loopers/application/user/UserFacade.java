@@ -19,14 +19,12 @@ public class UserFacade {
     }
 
     public UserOutput.GetUser getUser(Long id) {
-        return userService.findUser(id)
-                .map(UserOutput.GetUser::from)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "해당 ID의 사용자를 찾을 수 없습니다."));
+        UserResult.GetUser result = userService.getUser(id);
+        return UserOutput.GetUser.from(result);
     }
 
     public UserOutput.GetUser getUserByLoginId(String loginId) {
-        return userService.findUserByLoginId(loginId)
-                .map(UserOutput.GetUser::from)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "해당 ID의 사용자를 찾을 수 없습니다."));
+        UserResult.GetUser result = userService.getUserByLoginId(loginId);
+        return UserOutput.GetUser.from(result);
     }
 }

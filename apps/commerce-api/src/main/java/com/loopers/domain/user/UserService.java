@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @AllArgsConstructor
 public class UserService {
@@ -32,14 +30,17 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<UserResult.GetUser> findUserByLoginId(String loginId) {
-        return repository.findByLoginId(loginId)
-                .map(UserResult.GetUser::from);
+    public UserResult.GetUser getUser(Long id) {
+        return repository.findById(id)
+                .map(UserResult.GetUser::from)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다."));
     }
 
     @Transactional(readOnly = true)
-    public Optional<UserResult.GetUser> findUser(Long id) {
-        return repository.findById(id)
-                .map(UserResult.GetUser::from);
+    public UserResult.GetUser getUserByLoginId(String loginId) {
+        return repository.findByLoginId(loginId)
+                .map(UserResult.GetUser::from)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다."));
     }
+
 }

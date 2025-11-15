@@ -13,10 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 
 import java.util.function.Function;
 
@@ -27,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 class UserV1ApiE2ETest {
 
     private static final String ENDPOINT_JOIN_USER = "/api/v1/users";
-    private static final Function<String, String> ENDPOINT_GET_USER = loginId -> "/api/v1/users/" + loginId;
+    private static final String ENDPOINT_GET_USER = "/api/v1/users/me";
 
     private final TestRestTemplate testRestTemplate;
     private final UserJpaRepository userJpaRepository;
@@ -130,15 +127,17 @@ class UserV1ApiE2ETest {
                     .email(email)
                     .build();
 
-            userJpaRepository.save(user);
+            User savedUser = userJpaRepository.save(user);
 
-            String requestUrl = ENDPOINT_GET_USER.apply(loginId);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("X-USER-ID", String.valueOf(savedUser.getId()));
+            HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
             //when
             ResponseEntity<ApiResponse<UserResponse.GetUser>> response = testRestTemplate.exchange(
-                    requestUrl,
+                    ENDPOINT_GET_USER,
                     HttpMethod.GET,
-                    new HttpEntity<>(null),
+                    httpEntity,
                     new ParameterizedTypeReference<>() {
                     }
             );
@@ -159,14 +158,15 @@ class UserV1ApiE2ETest {
         @Test
         void throwsNotFoundException_whenInvalidLoginId() {
             //given
-            String loginId = "testuser";
-            String requestUrl = ENDPOINT_GET_USER.apply(loginId);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("X-USER-ID", String.valueOf(0L));
+            HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
             //when
             ResponseEntity<ApiResponse<UserResponse.GetUser>> response = testRestTemplate.exchange(
-                    requestUrl,
+                    ENDPOINT_GET_USER,
                     HttpMethod.GET,
-                    new HttpEntity<>(null),
+                    httpEntity,
                     new ParameterizedTypeReference<>() {
                     }
             );

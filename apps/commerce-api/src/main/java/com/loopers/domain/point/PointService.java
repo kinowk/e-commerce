@@ -16,7 +16,7 @@ public class PointService {
     public PointResult.GetPoint getPoint(Long userId) {
         return pointRepository.findByUserId(userId)
                 .map(PointResult.GetPoint::from)
-                .orElse(null);
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
 
     }
 

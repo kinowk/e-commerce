@@ -18,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -70,14 +68,13 @@ class UserServiceIntegrationTest {
 
             verify(userJpaRepository, times(1)).save(any(User.class));
 
-            Optional<UserResult.GetUser> result = userService.findUserByLoginId(loginId);
+            UserResult.GetUser result = userService.getUserByLoginId(loginId);
 
-            assertThat(result).isPresent();
             assertAll(
-                    () -> assertThat(result.get().getLoginId()).isEqualTo(loginId),
-                    () -> assertThat(result.get().getGender()).isEqualTo(gender),
-                    () -> assertThat(result.get().getBirthDate()).isEqualTo(birthDate),
-                    () -> assertThat(result.get().getEmail()).isEqualTo(email)
+                    () -> assertThat(result.getLoginId()).isEqualTo(loginId),
+                    () -> assertThat(result.getGender()).isEqualTo(gender),
+                    () -> assertThat(result.getBirthDate()).isEqualTo(birthDate),
+                    () -> assertThat(result.getEmail()).isEqualTo(email)
             );
         }
 
@@ -139,19 +136,6 @@ class UserServiceIntegrationTest {
                     () -> assertThat(getUserResponse.birthDate()).isEqualTo(birthDate),
                     () -> assertThat(getUserResponse.email()).isEqualTo(email)
             );
-        }
-
-        @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다.")
-        @Test
-        void returnsNull_whenNonExistsLoginId() {
-            //given
-            String loginId = "kinowk123";
-
-            //when
-            Optional<UserResult.GetUser> result = userService.findUserByLoginId(loginId);
-
-            //then
-            assertThat(result).isEmpty();
         }
 
     }
