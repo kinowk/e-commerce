@@ -36,8 +36,7 @@ public class OrderFacade {
 
         PaymentCommand.GetPayment paymentCommand = new PaymentCommand.GetPayment(input.orderId(), input.userId());
 
-        PaymentResult.GetPayment payment = paymentService.getPayment(paymentCommand)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+        PaymentResult.GetPayment payment = paymentService.getPayment(paymentCommand);
 
         return OrderOutput.GetOrderDetail.from(order, payment);
     }
