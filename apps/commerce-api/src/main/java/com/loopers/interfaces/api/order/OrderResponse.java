@@ -16,8 +16,15 @@ public class OrderResponse {
         }
     }
 
-    public class GetOrderSummary {
-
+    public record GetOrderSummary(Long orderId, Long userId, Long totalPrice, OrderStatus status) {
+        public static GetOrderSummary from(OrderOutput.GetOrderSummary output) {
+            return new GetOrderSummary(
+                    output.orderId(),
+                    output.userId(),
+                    output.totalPrice(),
+                    output.status()
+            );
+        }
     }
 
     public record GetOrderDetail(Long orderId, Long userId, Long totalPrice, OrderStatus status, List<Product> products) {

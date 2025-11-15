@@ -31,6 +31,8 @@ public class OrderService {
 
         Order order = new Order(command.userId(), command.totalPrice());
 
+        orderRepository.save(order);
+
         List<OrderProduct> orderProducts = command.products().stream()
                 .map(product -> new OrderProduct(
                         order.getId(),
@@ -42,8 +44,13 @@ public class OrderService {
 
         order.addProduct(orderProducts);
 
-        orderRepository.save(order);
-
         return OrderResult.Create.from(order);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResult.GetOrderSummary getOrderSummary(Long userId) {
+        return orderRepository.findByUserId(userId)
+                .map(OrderResult.GetOrderSummary::from)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
     }
 }

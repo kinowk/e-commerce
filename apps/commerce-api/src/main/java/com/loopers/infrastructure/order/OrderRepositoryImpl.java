@@ -22,6 +22,11 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
+    public Optional<Order> findByUserId(Long userId) {
+        return jpaRepository.findByUserId(userId);
+    }
+
+    @Override
     public Optional<Order> findOrderDetailById(Long orderId) {
         QOrder o = QOrder.order;
         QOrderProduct op = QOrderProduct.orderProduct;

@@ -17,7 +17,9 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     @GetMapping
     @Override
     public ApiResponse<OrderResponse.GetOrderSummary> getOrderSummary(@RequestHeader("X-USER-ID") Long userId) {
-        return null;
+        OrderOutput.GetOrderSummary output = orderFacade.getOrderSummary(userId);
+        OrderResponse.GetOrderSummary response = OrderResponse.GetOrderSummary.from(output);
+        return ApiResponse.success(response);
     }
 
     @GetMapping("/{orderId}")

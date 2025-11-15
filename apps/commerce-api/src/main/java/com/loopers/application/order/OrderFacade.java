@@ -28,6 +28,11 @@ public class OrderFacade {
     private final OrderService orderService;
     private final PaymentService paymentService;
 
+    public OrderOutput.GetOrderSummary getOrderSummary(Long userId) {
+        OrderResult.GetOrderSummary result = orderService.getOrderSummary(userId);
+        return OrderOutput.GetOrderSummary.from(result);
+    }
+
     public OrderOutput.GetOrderDetail getOrderDetail(OrderInput.GetOrderDetail input) {
         userService.getUser(input.userId());
 
