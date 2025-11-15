@@ -29,7 +29,7 @@ public class OrderCart {
                         .collect(Collectors.toMap(ProductResult.GetProductOptions.Item::productOptionId, Function.identity()))
         );
 
-        if (productMap.size() != optionMap.size())
+        if (!productMap.keySet().equals(optionMap.keySet()))
             throw new CoreException(ErrorType.NOT_FOUND);
 
         return new OrderCart(productMap, optionMap);
@@ -40,7 +40,7 @@ public class OrderCart {
             int quantity = this.productMap.get(key).quantity();
             int stockQuantity = this.optionMap.get(key).stockQuantity();
 
-            if (quantity < stockQuantity)
+            if (quantity <= stockQuantity)
                 return true;
         }
 
