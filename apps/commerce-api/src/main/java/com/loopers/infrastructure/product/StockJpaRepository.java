@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface StockJpaRepository extends JpaRepository<Stock, Long> {
 
-    List<Stock> findByProductOptionIdIn(List<Long> productOtpionIds);
+    List<Stock> findByProductOptionIdIn(List<Long> productOptionIds);
 }
