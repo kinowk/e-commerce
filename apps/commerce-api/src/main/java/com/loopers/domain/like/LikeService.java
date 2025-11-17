@@ -1,0 +1,55 @@
+package com.loopers.domain.like;
+
+import com.loopers.domain.product.Product;
+import com.loopers.domain.product.ProductRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class LikeService {
+
+    private final LikeRepository likeRepository;
+    private final ProductRepository productRepository;
+
+    @Transactional(readOnly = true)
+    public LikeResult.GetLikeProducts getLikeProducts(Long userId) {
+        List<LikeQueryResult.GetLikeProducts> result = likeRepository.findByUserId(userId);
+        return LikeResult.GetLikeProducts.from(result);
+
+    }
+
+    @Transactional(readOnly = true)
+    public Long getLikeCount(Long productId) {
+        return likeRepository.countByProductId(productId);
+    }
+
+    @Transactional
+    public void like(LikeCommand.Like command) {
+        Long userId = command.userId();
+        Long productId = command.productId();
+
+        likeRepository.findByUserIdAndProductId(userId, productId)
+                .orElseGet(() -> {
+                    productRepository.findById(productId).ifPresent(Product::like);
+                    Like like = new Like(userId, productId);
+                    return likeRepository.save(like);
+                });
+
+    }
+
+    @Transactional
+    public void dislike(LikeCommand.Dislike command) {
+        Long userId = command.userId();
+        Long productId = command.productId();
+
+        likeRepository.findByUserIdAndProductId(userId, productId)
+                .ifPresent(like -> {
+                    productRepository.findById(productId).ifPresent(Product::dislike);
+                    likeRepository.delete(like);
+                });
+    }
+}

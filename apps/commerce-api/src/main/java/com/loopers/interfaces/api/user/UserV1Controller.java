@@ -14,7 +14,7 @@ public class UserV1Controller implements UserV1ApiSpec {
 
     private final UserFacade userFacade;
 
-    @PostMapping("")
+    @PostMapping
     @Override
     public ApiResponse<UserResponse.Join> join(@RequestBody UserRequest.Join request) {
         UserInput.Join input = request.toInput();
@@ -23,10 +23,10 @@ public class UserV1Controller implements UserV1ApiSpec {
         return ApiResponse.success(response);
     }
 
-    @GetMapping("/{loginId}")
+    @GetMapping("/me")
     @Override
-    public ApiResponse<UserResponse.GetUser> getUser(@PathVariable String loginId) {
-        UserOutput.GetUser output = userFacade.getUserByLoginId(loginId);
+    public ApiResponse<UserResponse.GetUser> getUser(@RequestHeader("X-USER-ID") Long userId) {
+        UserOutput.GetUser output = userFacade.getUser(userId);
         UserResponse.GetUser response = UserResponse.GetUser.from(output);
         return ApiResponse.success(response);
     }

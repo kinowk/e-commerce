@@ -25,7 +25,7 @@ class PointV1ApiE2ETest {
     private static final Long INITIAL_BALANCE = 0L;
     private static final String X_USER_ID = "X-USER-ID";
     private static final String ENDPOINT_CHARGE_POINT = "/api/v1/points/charge";
-    private static final String ENDPOINT_GET_POINT = "/api/v1/points/users";
+    private static final String ENDPOINT_GET_POINT = "/api/v1/points";
 
     private final TestRestTemplate testRestTemplate;
     private final UserJpaRepository userJpaRepository;
