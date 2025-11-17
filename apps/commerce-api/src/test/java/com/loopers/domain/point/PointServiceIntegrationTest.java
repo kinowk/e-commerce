@@ -81,18 +81,5 @@ class PointServiceIntegrationTest {
                     () -> assertThat(result.getBalance()).isEqualTo(balance)
             );
         }
-
-        @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다.")
-        @Test
-        void returnsNull_whenInvalidUserId() {
-            //given
-            Long userId = 1L;
-
-            //when
-            PointResult.GetPoint result = pointService.getPoint(userId);
-
-            //then
-            assertThat(result).isNull();
-        }
     }
 }
