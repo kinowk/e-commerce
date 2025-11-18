@@ -17,7 +17,6 @@ public class PointService {
         return pointRepository.findByUserId(userId)
                 .map(PointResult.GetPoint::from)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
-
     }
 
     @Transactional
@@ -41,5 +40,27 @@ public class PointService {
         pointRepository.saveHistory(history);
 
         return PointResult.Charge.from(point);
+    }
+
+    @Transactional
+    public PointResult.Use use(PointCommand.Use command) {
+        Long userId = command.userId();
+        Long amount = command.amount();
+
+        Point point = pointRepository.findByUserId(userId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+
+        point.use(amount);
+        Point savedPoint = pointRepository.save(point);
+
+        PointHistory pointHistory = PointHistory.builder()
+                .userId(userId)
+                .amount(amount)
+                .transactionType(PointTransactionType.USE)
+                .build();
+
+        pointRepository.saveHistory(pointHistory);
+
+        return PointResult.Use.from(savedPoint);
     }
 }
