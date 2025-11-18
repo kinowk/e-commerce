@@ -108,13 +108,28 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public List<Stock> findStocksByProductOptionIdsForUpdate(List<Long> productOptionIds) {
+    public List<Stock> findStocksForUpdate(List<Long> productOptionIds) {
         return stockJpaRepository.findByProductOptionIdIn(productOptionIds);
+    }
+
+    @Override
+    public Product save(Product product) {
+        return productJpaRepository.save(product);
     }
 
     @Override
     public List<Stock> saveStocks(List<Stock> stocks) {
         return stockJpaRepository.saveAll(stocks);
+    }
+
+    @Override
+    public void increaseLikeCount(Long id) {
+        productJpaRepository.increaseLikeCount(id);
+    }
+
+    @Override
+    public void decreaseLikeCount(Long id) {
+        productJpaRepository.decreaseLikeCount(id);
     }
 
     private OrderSpecifier<?>[] getOrderBy(ProductSortType sortType) {

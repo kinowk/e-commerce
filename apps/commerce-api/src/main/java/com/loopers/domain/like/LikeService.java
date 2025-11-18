@@ -1,6 +1,5 @@
 package com.loopers.domain.like;
 
-import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,7 +41,7 @@ public class LikeService {
 
         likeRepository.save(like);
 
-        productRepository.findById(productId).ifPresent(Product::like);
+        productRepository.increaseLikeCount(productId);
     }
 
     @Transactional
@@ -56,6 +55,6 @@ public class LikeService {
 
         likeRepository.deleteByUserIdAndProductId(userId, productId);
 
-        productRepository.findById(productId).ifPresent(Product::dislike);
+        productRepository.decreaseLikeCount(productId);
     }
 }
