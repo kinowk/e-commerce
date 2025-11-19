@@ -17,4 +17,13 @@ public class PaymentResult {
             );
         }
     }
+
+    public record Pay(Long paymentId, PaymentStatus paymentStatus) {
+        public static Pay from(Payment payment) {
+            return new Pay(
+                    payment.getId(),
+                    payment.getStatus()
+            );
+        }
+    }
 }
