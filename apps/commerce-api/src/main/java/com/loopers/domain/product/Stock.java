@@ -41,6 +41,13 @@ public class Stock {
         this.updatedAt = ZonedDateTime.now();
     }
 
+    public void add(int amount) {
+        if (amount <= 0)
+            throw new CoreException(ErrorType.BAD_REQUEST, "증가 수량은 1개 이상이어야 합니다.");
+
+        this.quantity = this.quantity + amount;
+    }
+
     public void deduct(int amount) {
         if (amount <= 0)
             throw new CoreException(ErrorType.BAD_REQUEST, "차감 수량은 1개 이상이어야 합니다.");
@@ -49,6 +56,5 @@ public class Stock {
             throw new CoreException(ErrorType.BAD_REQUEST, "재고가 부족합니다.");
 
         this.quantity = this.quantity - amount;
-        this.updatedAt = ZonedDateTime.now();
     }
 }

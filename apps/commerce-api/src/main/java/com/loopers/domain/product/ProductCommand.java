@@ -16,4 +16,10 @@ public class ProductCommand {
 
         }
     }
+
+    public record AddStocks(List<Item> items) {
+        public record Item(Long productOptionId, Integer amount) {
+
+        }
+    }
 }
