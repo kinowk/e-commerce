@@ -16,8 +16,8 @@ public class PointRepositoryImpl implements PointRepository {
     private final PointHistoryJpaRepository pointHistoryJpaRepository;
 
     @Override
-    public Optional<Point> findByUserId(Long id) {
-        return pointJpaRepository.findByUserId(id);
+    public Optional<Point> findByUserId(Long userId) {
+        return pointJpaRepository.findByUserId(userId);
     }
 
     @Override
@@ -28,5 +28,10 @@ public class PointRepositoryImpl implements PointRepository {
     @Override
     public PointHistory saveHistory(PointHistory history) {
         return pointHistoryJpaRepository.save(history);
+    }
+
+    @Override
+    public Optional<Point> findByUserIdForUpdate(Long userId) {
+        return pointJpaRepository.findByUserIdForUpdate(userId);
     }
 }
