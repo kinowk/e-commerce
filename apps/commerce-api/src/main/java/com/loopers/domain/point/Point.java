@@ -38,12 +38,12 @@ public class Point {
 
     private void validateBalance(Long balance) {
         if (balance == null || balance < 0)
-            throw new CoreException(ErrorType.BAD_REQUEST, "포인트 잔액은 0 이상이어야 합니다.");
+            throw new CoreException(ErrorType.BAD_REQUEST, "포인트 잔액은 0원 이상이어야 합니다.");
     }
 
     public long charge(Long amount) {
-        if (amount <= 0)
-            throw new CoreException(ErrorType.BAD_REQUEST, "충전 금액은 0보다 커야 합니다.");
+        if (amount < 0)
+            throw new CoreException(ErrorType.BAD_REQUEST, "충전 금액은 0원 이상이어야 합니다.");
 
         if (this.balance > Long.MAX_VALUE - amount)
             throw new CoreException(ErrorType.BAD_REQUEST, "잔액 한도를 초과할 수 없습니다.");

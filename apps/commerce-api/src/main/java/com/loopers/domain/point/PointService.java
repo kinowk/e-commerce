@@ -1,5 +1,6 @@
 package com.loopers.domain.point;
 
+import com.loopers.domain.user.UserRepository;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PointService {
 
+    private final UserRepository userRepository;
     private final PointRepository pointRepository;
 
     @Transactional(readOnly = true)
@@ -24,8 +26,15 @@ public class PointService {
         Long userId = command.userId();
         Long amount = command.amount();
 
+        userRepository.findById(userId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자가 존재하지 않습니다."));
+
         Point point = pointRepository.findByUserId(userId)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 사용자입니다."));
+                .orElse(Point.builder()
+                        .userId(userId)
+                        .balance(0L)
+                        .build()
+                );
 
         point.charge(amount);
 
@@ -47,7 +56,7 @@ public class PointService {
         Long userId = command.userId();
         Long amount = command.amount();
 
-        Point point = pointRepository.findByUserId(userId)
+        Point point = pointRepository.findByUserIdForUpdate(userId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
 
         point.use(amount);
