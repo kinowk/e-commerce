@@ -1,8 +1,6 @@
 package com.loopers.domain.product;
 
-import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.repository.Lock;
 
 import java.util.List;
 import java.util.Optional;

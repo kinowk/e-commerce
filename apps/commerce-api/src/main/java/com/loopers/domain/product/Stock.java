@@ -32,7 +32,7 @@ public class Stock {
     private ZonedDateTime updatedAt;
 
     @Builder
-    public Stock(ProductOption productOption, Integer quantity, ZonedDateTime updatedAt) {
+    public Stock(ProductOption productOption, Integer quantity) {
         if (quantity == null || quantity < 0)
             throw new CoreException(ErrorType.BAD_REQUEST);
 
