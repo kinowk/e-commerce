@@ -39,4 +39,14 @@ public class PointResult {
                     .build();
         }
     }
+
+    public record Use(Long pointId, Long userId, Long balance) {
+        public static Use from(Point point) {
+            return new Use(
+                    point.getId(),
+                    point.getUserId(),
+                    point.getBalance()
+            );
+        }
+    }
 }

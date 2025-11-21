@@ -8,4 +8,7 @@ public class PaymentCommand {
     public record GetPayment(Long orderId, Long userId) {
 
     }
+
+    public record Pay(Long orderId, Long userId, Long amount, PaymentMethod paymentMethod) {
+    }
 }

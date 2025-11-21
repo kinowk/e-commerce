@@ -42,9 +42,41 @@ public class ProductService {
     }
 
     @Transactional
-    public void deductStcoks(ProductCommand.DeductStocks command) {
-        List<ProductCommand.DeductStocks.Item> items = command.items();
+    public void addStocks(ProductCommand.AddStocks command) {
+        List<ProductCommand.AddStocks.Item> items = command.items();
+        if (items.isEmpty())
+            return;
 
+        long distinctItemCount = items.stream()
+                .map(ProductCommand.AddStocks.Item::productOptionId)
+                .distinct()
+                .count();
+
+        if (distinctItemCount != items.size())
+            throw new CoreException(ErrorType.BAD_REQUEST, "중복된 상품 옵션이 존재합니다.");
+
+        List<Long> productOptionIds = items.stream()
+                .map(ProductCommand.AddStocks.Item::productOptionId)
+                .toList();
+
+        Map<Long, Stock> stockMap = productRepository.findStocksForUpdate(productOptionIds)
+                .stream()
+                .collect(toMap(stock -> stock.getProductOption().getId(), Function.identity()));
+
+        if (stockMap.size() != productOptionIds.size())
+            throw new CoreException(ErrorType.NOT_FOUND);
+
+        for (ProductCommand.AddStocks.Item item : items) {
+            Stock stock = stockMap.get(item.productOptionId());
+            stock.add(item.amount());
+        }
+
+        productRepository.saveStocks(List.copyOf(stockMap.values()));
+    }
+
+    @Transactional
+    public void deductStocks(ProductCommand.DeductStocks command) {
+        List<ProductCommand.DeductStocks.Item> items = command.items();
         if (items.isEmpty())
             return;
 
@@ -60,9 +92,9 @@ public class ProductService {
                 .map(ProductCommand.DeductStocks.Item::productOptionId)
                 .toList();
 
-        Map<Long, Stock> stockMap = productRepository.findStocksByProductOptionIdsForUpdate(productOptionIds)
+        Map<Long, Stock> stockMap = productRepository.findStocksForUpdate(productOptionIds)
                 .stream()
-                .collect(toMap(s -> s.getProductOption().getId(), Function.identity()));
+                .collect(toMap(stock -> stock.getProductOption().getId(), Function.identity()));
 
         if (stockMap.size() != productOptionIds.size())
             throw new CoreException(ErrorType.NOT_FOUND);
@@ -71,5 +103,7 @@ public class ProductService {
             Stock stock = stockMap.get(item.productOptionId());
             stock.deduct(item.amount());
         }
+
+        productRepository.saveStocks(List.copyOf(stockMap.values()));
     }
 }

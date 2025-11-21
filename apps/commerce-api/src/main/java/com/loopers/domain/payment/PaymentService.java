@@ -20,6 +20,20 @@ public class PaymentService {
                 .filter(payment -> Objects.equals(payment.getUserId(), command.userId()))
                 .map(PaymentResult.GetPayment::from)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+    }
 
+    @Transactional
+    public PaymentResult.Pay pay(PaymentCommand.Pay command) {
+        Payment payment = Payment.builder()
+                .orderId(command.orderId())
+                .userId(command.userId())
+                .amount(command.amount())
+                .status(PaymentStatus.COMPLETED)
+                .method(command.paymentMethod())
+                .build();
+
+        Payment savedPayment = paymentRepository.save(payment);
+
+        return PaymentResult.Pay.from(savedPayment);
     }
 }

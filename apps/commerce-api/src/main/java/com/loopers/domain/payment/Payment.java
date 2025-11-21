@@ -38,7 +38,7 @@ public class Payment extends BaseEntity {
     private PaymentMethod method;
 
     @Builder
-    public Payment(Long orderId, Long userId, Long amount, PaymentStatus status, PaymentMethod method) {
+    private Payment(Long orderId, Long userId, Long amount, PaymentStatus status, PaymentMethod method) {
         if (amount == null || amount < 0)
             throw new CoreException(ErrorType.BAD_REQUEST, "결제 금액은 0원 이상이어야 합니다.");
 

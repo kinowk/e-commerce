@@ -71,13 +71,19 @@ public class Order extends BaseEntity {
     }
 
     private void calculateTotalPrice() {
-        long sum = products.stream()
+        this.totalPrice = products.stream()
                 .mapToLong(product -> {
-                    return product.getPrice() * product.getQuantity();
+                    return (long) product.getPrice() * product.getQuantity();
                 })
                 .sum();
+    }
 
-        this.totalPrice = sum;
+    public void complete() {
+        this.status = OrderStatus.COMPLETED;
+    }
+
+    public void cancel() {
+        this.status = OrderStatus.CANCELED;
     }
 
 }

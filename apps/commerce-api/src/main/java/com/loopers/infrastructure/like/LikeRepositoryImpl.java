@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -25,8 +24,8 @@ public class LikeRepositoryImpl implements LikeRepository {
     }
 
     @Override
-    public Optional<Like> findByUserIdAndProductId(Long userId, Long productId) {
-        return jpaRepository.findByUserIdAndProductId(userId, productId);
+    public boolean existsByUserIdAndProductId(Long userId, Long productId) {
+        return jpaRepository.existsByUserIdAndProductId(userId, productId);
     }
 
     @Override
@@ -37,6 +36,11 @@ public class LikeRepositoryImpl implements LikeRepository {
     @Override
     public Like save(Like like) {
         return jpaRepository.save(like);
+    }
+
+    @Override
+    public void deleteByUserIdAndProductId(Long userId, Long productId) {
+        jpaRepository.deleteByUserIdAndProductId(userId, productId);
     }
 
     @Override

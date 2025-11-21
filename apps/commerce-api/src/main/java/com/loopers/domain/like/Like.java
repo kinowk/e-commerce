@@ -31,7 +31,7 @@ public class Like {
     private ZonedDateTime createdAt;
 
     @Builder
-    public Like(Long userId, Long productId) {
+    private Like(Long userId, Long productId) {
         if (userId == null) {
             throw new CoreException(ErrorType.BAD_REQUEST);
         }

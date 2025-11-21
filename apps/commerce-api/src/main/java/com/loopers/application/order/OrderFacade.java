@@ -50,7 +50,7 @@ public class OrderFacade {
         List<OrderInput.Create.Product> products = input.products();
 
         if (products.isEmpty())
-            throw new CoreException(ErrorType.BAD_REQUEST, "주문 상품이 없습니다.");
+            throw new CoreException(ErrorType.BAD_REQUEST, "주문 상품이 존재하지 않습니다.");
 
         userService.getUser(input.userId());
 
@@ -61,12 +61,12 @@ public class OrderFacade {
 
         OrderCart cart = OrderCart.from(input, options);
 
-        if (!cart.isNotEnoughStock())
+        if (cart.isNotEnoughStock())
             throw new CoreException(ErrorType.BAD_REQUEST, "재고가 부족합니다.");
 
         PointResult.GetPoint point = pointService.getPoint(input.userId());
 
-        if (!cart.isNotEnoughPoint(point.getBalance()))
+        if (cart.isNotEnoughPoint(point.getBalance()))
             throw new CoreException(ErrorType.BAD_REQUEST, "포인트가 부족합니다.");
 
         OrderResult.Create result = orderService.create(cart.toCommand(input.userId()));
