@@ -19,8 +19,4 @@ dependencies {
     // test-fixtures
     testImplementation(testFixtures(project(":modules:jpa")))
     testImplementation(testFixtures(project(":modules:redis")))
-
-    //테스트에서 lombok 사용
-    testCompileOnly ("org.projectlombok:lombok")
-    testAnnotationProcessor ("org.projectlombok:lombok")
 }
