@@ -17,10 +17,9 @@ public class PointOutput {
         }
     }
 
-    public record GetPoint(Long id, Long userId, Long balance) {
+    public record GetPoint(Long userId, Long balance) {
         public static GetPoint from(PointResult.GetPoint result) {
             return new GetPoint(
-                    result.getId(),
                     result.getUserId(),
                     result.getBalance()
             );

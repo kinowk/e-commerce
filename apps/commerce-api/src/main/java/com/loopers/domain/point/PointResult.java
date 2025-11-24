@@ -11,13 +11,11 @@ public class PointResult {
     @Getter
     @Builder
     public static class GetPoint {
-        private final Long id;
         private final Long userId;
         private final Long balance;
 
         public static GetPoint from(Point point) {
             return GetPoint.builder()
-                    .id(point.getId())
                     .userId(point.getUserId())
                     .balance(point.getBalance())
                     .build();
