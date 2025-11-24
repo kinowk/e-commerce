@@ -33,13 +33,21 @@ public class ProductOption extends BaseEntity {
     private Stock stock;
 
     @Builder
-    public ProductOption(String color, String size, Integer extraPrice) {
+    public ProductOption(String color, String size, Integer extraPrice, Integer quantity) {
         if (extraPrice == null || extraPrice < 0)
             throw new CoreException(ErrorType.BAD_REQUEST, "추가 가격은 0원 이상이어야 합니다.");
+
+        if (quantity == null)
+            throw new CoreException(ErrorType.BAD_REQUEST, "상품 옵션의 재고가 필요합니다.");
 
         this.color = color;
         this.size = size;
         this.extraPrice = extraPrice;
+        this.stock = Stock.builder()
+                .productOption(this)
+                .quantity(quantity)
+                .build();
+
     }
 
     public int getStockQuantity() {
@@ -49,5 +57,4 @@ public class ProductOption extends BaseEntity {
     public void decreaseStock(int quantity) {
         this.stock.deduct(quantity);
     }
-
 }

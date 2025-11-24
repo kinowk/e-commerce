@@ -28,7 +28,7 @@ public class PointHistory {
     private PointTransactionType transactionType;
 
     @Builder
-    public PointHistory(Long id, Long userId, Long amount, PointTransactionType transactionType) {
+    private PointHistory(Long id, Long userId, Long amount, PointTransactionType transactionType) {
         this.id = id;
         this.userId = userId;
         this.amount = amount;

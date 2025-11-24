@@ -16,6 +16,13 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     @Transactional(readOnly = true)
+    public OrderResult.GetOrderSummary getOrderSummary(Long userId) {
+        return orderRepository.findByUserId(userId)
+                .map(OrderResult.GetOrderSummary::from)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
     public OrderResult.GetOrderDetail getOrderDetail(OrderCommand.GetOrderDetail command) {
         return orderRepository.findOrderDetailById(command.orderId())
                 .filter(order -> Objects.equals(order.getUserId(), command.userId()))
@@ -47,10 +54,23 @@ public class OrderService {
         return OrderResult.Create.from(order);
     }
 
-    @Transactional(readOnly = true)
-    public OrderResult.GetOrderSummary getOrderSummary(Long userId) {
-        return orderRepository.findByUserId(userId)
-                .map(OrderResult.GetOrderSummary::from)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+    @Transactional
+    public void complete(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "주문이 존재하지 않습니다."));
+
+        order.complete();
+
+        orderRepository.save(order);
+    }
+
+    @Transactional
+    public void cancel(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "주문이 존재하지 않습니다."));
+
+        order.cancel();
+
+        orderRepository.save(order);
     }
 }

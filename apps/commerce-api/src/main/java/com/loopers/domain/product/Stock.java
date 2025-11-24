@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 
 @Getter
 @Entity
-@Table(name = "stock")
+@Table(name = "stocks")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Stock {
 
@@ -32,13 +32,20 @@ public class Stock {
     private ZonedDateTime updatedAt;
 
     @Builder
-    public Stock(ProductOption productOption, Integer quantity, ZonedDateTime updatedAt) {
+    public Stock(ProductOption productOption, Integer quantity) {
         if (quantity == null || quantity < 0)
             throw new CoreException(ErrorType.BAD_REQUEST);
 
         this.productOption = productOption;
         this.quantity = quantity;
         this.updatedAt = ZonedDateTime.now();
+    }
+
+    public void add(int amount) {
+        if (amount <= 0)
+            throw new CoreException(ErrorType.BAD_REQUEST, "증가 수량은 1개 이상이어야 합니다.");
+
+        this.quantity = this.quantity + amount;
     }
 
     public void deduct(int amount) {
@@ -49,6 +56,5 @@ public class Stock {
             throw new CoreException(ErrorType.BAD_REQUEST, "재고가 부족합니다.");
 
         this.quantity = this.quantity - amount;
-        this.updatedAt = ZonedDateTime.now();
     }
 }
