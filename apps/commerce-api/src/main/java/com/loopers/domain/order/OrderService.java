@@ -36,17 +36,21 @@ public class OrderService {
         if (products.isEmpty())
             throw new CoreException(ErrorType.BAD_REQUEST);
 
-        Order order = new Order(command.userId(), command.totalPrice());
+        Order order = Order.builder()
+                .userId(command.userId())
+                .totalPrice(command.totalPrice())
+                .build();
 
         orderRepository.save(order);
 
         List<OrderProduct> orderProducts = command.products().stream()
-                .map(product -> new OrderProduct(
-                        order.getId(),
-                        product.productOptionId(),
-                        product.quantity(),
-                        product.price()
-                ))
+                .map(product -> OrderProduct.builder()
+                        .orderId(order.getId())
+                        .productOptionId(product.productOptionId())
+                        .quantity(product.quantity())
+                        .price(product.price())
+                        .build()
+                )
                 .toList();
 
         order.addProduct(orderProducts);

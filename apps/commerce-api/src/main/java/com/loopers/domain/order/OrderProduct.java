@@ -4,6 +4,7 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,7 +29,8 @@ public class OrderProduct {
 
     private Integer price;
 
-    public OrderProduct(Long orderId, Long productOptionId, Integer quantity, Integer price) {
+    @Builder
+    private OrderProduct(Long orderId, Long productOptionId, Integer quantity, Integer price) {
         if (quantity == null || quantity <= 0)
             throw new CoreException(ErrorType.BAD_REQUEST, "수량은 1개 이상이어야 됩니다.");
 

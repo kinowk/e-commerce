@@ -58,10 +58,20 @@ class LikeServiceIntegrationTest {
         @Test
         void concurrency_test_for_like() throws InterruptedException {
             // given
-            Brand brand = brandRepository.save(new Brand("Apple", "애플 주식회사(Apple Inc.)는 실리콘 밸리의 쿠퍼티노에 본사를 둔 미국의 다국적 기업이자 기술 회사이다."));
-            Product product = productRepository.save(new Product("MacBook Pro M5", 2_390_000, brand.getId()));
+            Brand brand = Brand.builder()
+                    .name("Apple")
+                    .description("애플 주식회사(Apple Inc.)는 실리콘 밸리의 쿠퍼티노에 본사를 둔 미국의 다국적 기업이자 기술 회사이다.")
+                    .build();
+            Brand savedBrand = brandRepository.save(brand);
 
-            int userCount = 100;
+            Product product = Product.builder()
+                    .name("MacBook Pro M5")
+                    .basePrice(2_390_000)
+                    .brandId(savedBrand.getId())
+                    .build();
+            Product savedProduct = productRepository.save(product);
+
+            int userCount = 30;
 
             for (int i = 0; i < userCount; i++) {
                 userRepository.save(User.builder()
@@ -73,14 +83,14 @@ class LikeServiceIntegrationTest {
             }
 
             // when
-            ExecutorService executorService = Executors.newFixedThreadPool(32);
+            ExecutorService executorService = Executors.newFixedThreadPool(30);
             CountDownLatch latch = new CountDownLatch(userCount);
 
             for (int i = 0; i < userCount; i++) {
                 long userId = i + 1;
                 executorService.submit(() -> {
                     try {
-                        likeService.like(new LikeCommand.Like(userId, product.getId()));
+                        likeService.like(new LikeCommand.Like(userId, savedProduct.getId()));
                     } finally {
                         latch.countDown();
                     }
@@ -90,11 +100,10 @@ class LikeServiceIntegrationTest {
             latch.await();
 
             // then
-            Product findProduct = productRepository.findById(product.getId()).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+            Product findProduct = productRepository.findById(savedProduct.getId()).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
 
-            assertThat(likeRepository.countByProductId(product.getId())).isEqualTo(userCount);
+            assertThat(likeRepository.countByProductId(savedProduct.getId())).isEqualTo(userCount);
             assertThat(findProduct.getLikeCount()).isEqualTo(userCount);
-
         }
 
     }

@@ -33,7 +33,7 @@ public class ProductOption extends BaseEntity {
     private Stock stock;
 
     @Builder
-    public ProductOption(String color, String size, Integer extraPrice, Integer quantity) {
+    private ProductOption(String color, String size, Integer extraPrice, Integer quantity) {
         if (extraPrice == null || extraPrice < 0)
             throw new CoreException(ErrorType.BAD_REQUEST, "추가 가격은 0원 이상이어야 합니다.");
 

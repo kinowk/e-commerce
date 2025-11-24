@@ -40,7 +40,7 @@ public class Product extends BaseEntity {
     private List<ProductOption> options = new ArrayList<>();
 
     @Builder
-    public Product(String name, Integer basePrice, Long brandId) {
+    private Product(String name, Integer basePrice, Long brandId) {
         if (!StringUtils.hasText(name))
             throw new CoreException(ErrorType.BAD_REQUEST, "상품 이름이 올바르지 않습니다.");
 
