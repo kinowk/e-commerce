@@ -105,7 +105,7 @@ class PointServiceIntegrationTest {
             UserInput.Join joinInput = new UserInput.Join("test", Gender.MALE, "2000-01-01", "test@gmail.com");
             UserOutput.Join joinOutput = userFacade.join(joinInput);
             Long userId = joinOutput.id();
-            log.info("userId: {}", userId);
+
             long chargeAmount = 1_000_000L;
             PointCommand.Charge chargeCommand = new PointCommand.Charge(userId, chargeAmount);
             pointService.charge(chargeCommand);
