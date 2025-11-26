@@ -15,7 +15,14 @@ import java.util.List;
 
 @Getter
 @Entity
-@Table(name = "products")
+@Table(
+        name = "products",
+        indexes = {
+                @Index(name = "idx_products_brand_price", columnList = "ref_brand_id, base_price"),
+                @Index(name = "idx_products_brand_like_count", columnList = "ref_brand_id, like_count"),
+                @Index(name = "idx_products_brand_created", columnList = "ref_brand_id, created_at")
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseEntity {
 

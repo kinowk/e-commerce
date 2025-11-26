@@ -1,4 +1,4 @@
--- 1. 브랜드(brands) 테이블
+-- 1.1. 브랜드(brands) 테이블
 CREATE TABLE brands (
     brand_id     BIGINT NOT NULL AUTO_INCREMENT COMMENT '브랜드ID',
     brand_name   VARCHAR(255) NOT NULL COMMENT '브랜드명',
@@ -25,3 +25,8 @@ CREATE TABLE products (
 
     --INDEX idx_product_brand_id (brand_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 상품(products) 테이블 index
+CREATE INDEX idx_products_brand_price ON products (ref_brand_id, base_price);
+CREATE INDEX idx_products_brand_like ON products (ref_brand_id, like_count);
+CREATE INDEX idx_products_brand_created ON products (ref_brand_id, created_at);
