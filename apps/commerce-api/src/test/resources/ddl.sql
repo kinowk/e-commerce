@@ -16,14 +16,14 @@ CREATE TABLE products (
     ref_brand_id  BIGINT NOT NULL COMMENT '브랜드ID',
     product_name  VARCHAR(255) NOT NULL COMMENT '상품명',
     base_price    INT NOT NULL COMMENT '기본금액',
-    like_count    INT NOT NULL DEFAULT 0
+    like_count    INT NOT NULL DEFAULT 0,
     created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
     updated_at    TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
     deleted_at    TIMESTAMP NULL DEFAULT NULL COMMENT '삭제일시',
 
     PRIMARY KEY (product_id)
 
-    --INDEX idx_product_brand_id (brand_id)
+    --INDEX idx_products_brand_id (brand_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 상품(products) 테이블 index
