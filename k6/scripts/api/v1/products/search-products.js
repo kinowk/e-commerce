@@ -24,7 +24,6 @@ export let options = {
 };
 
 export default function () {
-    const productId = randomIntBetween(1, 100000);
     const brandId = randomIntBetween(1, 5000);
     const keyword = '';
     const sort = 'LIKES_DESC';
