@@ -72,7 +72,7 @@ public class ProductService {
         ProductResult.GetProductSummary result = ProductResult.GetProductSummary.from(productsPage);
 
         try {
-            redisTemplate.opsForValue().set(key, result);
+            redisTemplate.opsForValue().set(key, result, Duration.ofMinutes(5));
         } catch (RedisConnectionFailureException | SerializationException e) {
             log.warn("Redis 저장 실패: {}", key, e);
         }
