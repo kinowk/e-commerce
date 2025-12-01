@@ -28,7 +28,7 @@ public class Brand extends BaseEntity {
     private String description;
 
     @Builder
-    public Brand(String name, String description) {
+    private Brand(String name, String description) {
         if (!StringUtils.hasText(name))
             throw new CoreException(ErrorType.BAD_REQUEST, "브랜드 이름이 올바르지 않습니다.");
 

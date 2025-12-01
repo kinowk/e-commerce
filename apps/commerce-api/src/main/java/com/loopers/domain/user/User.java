@@ -44,7 +44,7 @@ public class User {
     private static final Pattern LOGIN_ID_PATTERN = Pattern.compile("^[A-Za-z0-9]{1,10}$");
 
     @Builder
-    public User(String loginId, Gender gender, String birthDate, String email) {
+    private User(String loginId, Gender gender, String birthDate, String email) {
         validateLoginId(loginId);
         validateGender(gender);
         validateBirthDate(birthDate);

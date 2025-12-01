@@ -48,9 +48,10 @@ public class ProductRepositoryImpl implements ProductRepository {
                                 ProductQueryResult.Products.class,
                                 p.id,
                                 p.name,
-                                p.brandId,
                                 p.basePrice,
-                                p.likeCount
+                                p.likeCount,
+                                p.brandId,
+                                b.name
                         )
                 )
                 .from(p)

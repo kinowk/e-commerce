@@ -15,7 +15,14 @@ import java.util.List;
 
 @Getter
 @Entity
-@Table(name = "products")
+@Table(
+        name = "products",
+        indexes = {
+                @Index(name = "idx_products_brand_price", columnList = "ref_brand_id, base_price"),
+                @Index(name = "idx_products_brand_like_count", columnList = "ref_brand_id, like_count"),
+                @Index(name = "idx_products_brand_created", columnList = "ref_brand_id, created_at")
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseEntity {
 
@@ -40,7 +47,7 @@ public class Product extends BaseEntity {
     private List<ProductOption> options = new ArrayList<>();
 
     @Builder
-    public Product(String name, Integer basePrice, Long brandId) {
+    private Product(String name, Integer basePrice, Long brandId) {
         if (!StringUtils.hasText(name))
             throw new CoreException(ErrorType.BAD_REQUEST, "상품 이름이 올바르지 않습니다.");
 

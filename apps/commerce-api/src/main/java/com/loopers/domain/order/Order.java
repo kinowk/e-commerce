@@ -38,7 +38,7 @@ public class Order extends BaseEntity {
     private List<OrderProduct> products = new ArrayList<>();
 
     @Builder
-    public Order(Long userId, Long totalPrice) {
+    private Order(Long userId, Long totalPrice) {
         if (totalPrice == null || totalPrice < 0)
             throw new CoreException(ErrorType.BAD_REQUEST, "주문 금액은 0원 이상이어야 합니다.");
 

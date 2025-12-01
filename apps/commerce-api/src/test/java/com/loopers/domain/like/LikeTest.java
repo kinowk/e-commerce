@@ -61,7 +61,7 @@ public class LikeTest {
         }, delimiterString = "|"
         )
         @ParameterizedTest
-        void retrunsLike_whenValidValues(Long userId, Long productId) {
+        void returnsLike_whenValidValues(Long userId, Long productId) {
             //when
             Like like = Like.builder()
                     .userId(userId)

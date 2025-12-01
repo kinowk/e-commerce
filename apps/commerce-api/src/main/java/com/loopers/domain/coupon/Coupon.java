@@ -42,7 +42,7 @@ public class Coupon extends BaseEntity {
     private ZonedDateTime expiresAt;
 
     @Builder
-    public Coupon(String name, Long userId, DiscountPolicy discountPolicy, Long amount, ZonedDateTime expiresAt) {
+    private Coupon(String name, Long userId, DiscountPolicy discountPolicy, Long amount, ZonedDateTime expiresAt) {
         this.name = name;
         this.userId = userId;
         this.discountPolicy = discountPolicy;
