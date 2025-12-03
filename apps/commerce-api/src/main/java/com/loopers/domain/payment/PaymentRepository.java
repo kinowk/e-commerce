@@ -8,4 +8,6 @@ public interface PaymentRepository {
 
     Payment save(Payment payment);
 
+    PaymentAttempt save(PaymentAttempt paymentAttempt);
+
 }

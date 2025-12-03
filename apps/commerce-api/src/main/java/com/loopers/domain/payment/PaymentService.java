@@ -23,12 +23,41 @@ public class PaymentService {
     }
 
     @Transactional
+    public PaymentResult.Pay ready(PaymentCommand.Ready command) {
+        Payment payment = Payment.builder()
+                .orderId(command.orderId())
+                .userId(command.userId())
+                .amount(command.amount())
+                .method(command.paymentMethod())
+                .status(PaymentStatus.PENDING)
+                .build();
+
+        Payment savedPayment = paymentRepository.save(payment);
+
+        return PaymentResult.Pay.from(savedPayment);
+    }
+
+    @Transactional
+    public PaymentResult.Attempt attempt(PaymentCommand.Attempt command) {
+        PaymentAttempt paymentAttempt = PaymentAttempt.builder()
+                .paymentId(command.paymentId())
+                .amount(command.amount())
+                .orderUid(command.orderUid())
+                .paymentMethod(command.paymentMethod())
+                .build();
+
+        PaymentAttempt savedPaymentAttempt = paymentRepository.save(paymentAttempt);
+
+        return PaymentResult.Attempt.from(savedPaymentAttempt);
+    }
+
+    @Transactional
     public PaymentResult.Pay pay(PaymentCommand.Pay command) {
         Payment payment = Payment.builder()
                 .orderId(command.orderId())
                 .userId(command.userId())
                 .amount(command.amount())
-                .status(PaymentStatus.COMPLETED)
+                .status(PaymentStatus.SUCCESS)
                 .method(command.paymentMethod())
                 .build();
 
