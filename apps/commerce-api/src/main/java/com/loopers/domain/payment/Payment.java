@@ -11,7 +11,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "payments")
+@Table(name = "payments", indexes = {
+        @Index(name = "idx_payments_order_user", columnList = "ref_order_id, ref_user_id")
+})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Payment extends BaseEntity {
 
