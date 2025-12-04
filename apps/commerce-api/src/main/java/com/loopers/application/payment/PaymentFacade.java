@@ -1,5 +1,7 @@
 package com.loopers.application.payment;
 
+import com.loopers.application.payment.processor.PaymentProcessContext;
+import com.loopers.application.payment.processor.PaymentProcessor;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderResult;
 import com.loopers.domain.order.OrderService;
@@ -24,11 +26,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentFacade {
 
-    private final PaymentService paymentService;
     private final OrderService orderService;
     private final UserService userService;
-    private final ProductService productService;
-    private final PointService pointService;
+    private final List<PaymentProcessor> paymentProcessors;
 
     @Transactional
     public PaymentOutput.Pay pay(PaymentInput.Pay input) {
@@ -43,38 +43,13 @@ public class PaymentFacade {
         if (orderResult.status() != OrderStatus.CREATED)
             throw new CoreException(ErrorType.BAD_REQUEST, "이미 완료/취소된 주문입니다.");
 
-        List<ProductCommand.DeductStocks.Item> items = orderResult.products().stream()
-                .map(product -> new ProductCommand.DeductStocks.Item(
-                        product.productOptionId(),
-                        product.quantity()
-                ))
-                .toList();
+        PaymentProcessor paymentProcessor = paymentProcessors.stream()
+                .filter(processor -> processor.supports(input.paymentMethod()))
+                .findFirst()
+                .orElseThrow(() -> new CoreException(ErrorType.BAD_REQUEST, "결제 수단이 잘못 되었습니다."));
 
-        ProductCommand.DeductStocks productCommand = new ProductCommand.DeductStocks(items);
-        productService.deductStocks(productCommand);
-
-        Long totalPrice = orderResult.totalPrice();
-
-        if (totalPrice > 0) {
-            PointCommand.Use pointCommand = new PointCommand.Use(
-                    userId,
-                    totalPrice
-            );
-
-            pointService.use(pointCommand);
-        }
-
-        PaymentCommand.Pay paymentCommand = new PaymentCommand.Pay(
-                orderId,
-                userId,
-                totalPrice,
-                input.paymentMethod()
-        );
-
-        PaymentResult.Pay paymentResult = paymentService.pay(paymentCommand);
-        orderService.complete(orderId);
-
-        return PaymentOutput.Pay.from(paymentResult);
+        PaymentProcessContext paymentProcessContext = PaymentProcessContext.of(userId, orderResult);
+        return paymentProcessor.process(paymentProcessContext);
     }
 
 }

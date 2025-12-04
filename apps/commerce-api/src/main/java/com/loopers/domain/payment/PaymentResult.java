@@ -19,9 +19,9 @@ public class PaymentResult {
         }
     }
 
-    public record Attempt(Long paymentAttemptId, Long paymentId, String orderUid, Long amount, PaymentMethod paymentMethod) {
-        public static Attempt from(PaymentAttempt paymentAttempt) {
-            return new Attempt(
+    public record RecordRequest(Long paymentAttemptId, Long paymentId, String orderUid, Long amount, PaymentMethod paymentMethod) {
+        public static RecordRequest from(PaymentAttempt paymentAttempt) {
+            return new RecordRequest(
                     paymentAttempt.getId(),
                     paymentAttempt.getPaymentId(),
                     paymentAttempt.getOrderUid(),

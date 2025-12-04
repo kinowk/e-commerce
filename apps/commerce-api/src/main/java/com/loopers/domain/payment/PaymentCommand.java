@@ -10,15 +10,11 @@ public class PaymentCommand {
 
     }
 
-    public record Ready(Long orderId, Long userId, Long amount, PaymentMethod paymentMethod) {
-
-    }
-
-    public record Attempt(Long paymentId, String orderUid, Long amount, PaymentMethod paymentMethod) {
-
-    }
-
     public record Pay(Long orderId, Long userId, Long amount, PaymentMethod paymentMethod) {
+
+    }
+
+    public record RecordResponse(Long paymentId, String orderUid, String transactionKey) {
 
     }
 }

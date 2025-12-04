@@ -35,8 +35,8 @@ public class PaymentAttempt extends BaseEntity {
     @Column(name = "payment_method", nullable = false)
     private PaymentMethod paymentMethod;
 
-    @Column(name = "pg_key")
-    private String pgKey;
+    @Column(name = "transaction_key")
+    private String transactionKey;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "attempt_status", nullable = false)
@@ -46,7 +46,7 @@ public class PaymentAttempt extends BaseEntity {
     private String description;
 
     @Builder
-    private PaymentAttempt(Long paymentId, String orderUid, Long amount, PaymentMethod paymentMethod, String description) {
+    private PaymentAttempt(Long paymentId, String orderUid, String transactionKey, Long amount, PaymentMethod paymentMethod, String description) {
         if (amount == null || amount < 0)
             throw new CoreException(ErrorType.BAD_REQUEST, "결제 금액은 0원 이상이어야 됩니다.");
 
@@ -58,15 +58,16 @@ public class PaymentAttempt extends BaseEntity {
             throw new CoreException(ErrorType.BAD_REQUEST, "잘못된 결제 수단입니다.");
 
         this.paymentId = paymentId;
+        this.orderUid = orderUid;
+        this.transactionKey = transactionKey;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
-        this.orderUid = orderUid;
         this.attemptStatus = AttemptStatus.PENDING;
         this.description = description;
     }
 
-    public void success(String pgKey) {
-        this.pgKey = pgKey;
+    public void success(String transactionKey) {
+        this.transactionKey = transactionKey;
         this.attemptStatus = AttemptStatus.SUCCESS;
     }
 
