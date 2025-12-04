@@ -43,6 +43,12 @@ subprojects {
         imports {
             mavenBom("org.springframework.cloud:spring-cloud-dependencies:${project.properties["springCloudDependenciesVersion"]}")
         }
+
+        dependencies{
+            // resilience4j
+            dependency("io.github.resilience4j:resilience4j-spring-boot3:${project.properties["resilience4jVersion"]}")
+
+        }
     }
 
     dependencies {
