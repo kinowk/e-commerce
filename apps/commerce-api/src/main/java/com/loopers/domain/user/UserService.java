@@ -1,8 +1,10 @@
 package com.loopers.domain.user;
 
+import com.loopers.domain.user.event.UserEvent;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,9 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository repository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
-    public UserResult.Join join(UserCommand.Join command) {
+    public UserResult.Join  join(UserCommand.Join command) {
         repository.findByLoginId(command.loginId()).ifPresent(user -> {
             throw new CoreException(ErrorType.CONFLICT, "이미 존재하는 ID입니다.");
         });
@@ -26,6 +29,9 @@ public class UserService {
                 .build();
 
         User savedUser = repository.save(user);
+
+        applicationEventPublisher.publishEvent(UserEvent.Join.from(savedUser));
+
         return UserResult.Join.from(savedUser);
     }
 
