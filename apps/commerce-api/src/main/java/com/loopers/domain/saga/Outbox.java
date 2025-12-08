@@ -1,0 +1,50 @@
+package com.loopers.domain.saga;
+
+import com.loopers.domain.BaseEntity;
+import com.loopers.support.error.CoreException;
+import com.loopers.support.error.ErrorType;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
+
+import java.util.UUID;
+
+@Getter
+@Entity
+@Table(name = "outboxes")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Outbox extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "outbox_id", nullable = false, updatable = false)
+    private Long id;
+
+    @Column(name = "event_id", nullable = false, updatable = false)
+    private UUID eventId;
+
+    @Column(name = "event_name", nullable = false, updatable = false)
+    private String eventName;
+
+    @Lob
+    @Column(name = "payload", nullable = false)
+    private String payload;
+
+    @Builder
+    private Outbox(UUID eventId, String eventName, String payload) {
+        if (eventId == null)
+            throw new CoreException(ErrorType.BAD_REQUEST, "이벤트ID가 올바르지 않습니다");
+
+        if (!StringUtils.hasText(eventName))
+            throw new CoreException(ErrorType.BAD_REQUEST, "이벤트명이 올바르지 않습니다.");
+
+        this.eventId = eventId;
+        this.eventName = eventName;
+        this.payload = payload;
+    }
+
+}
+
