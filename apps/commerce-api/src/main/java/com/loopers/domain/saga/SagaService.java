@@ -1,12 +1,16 @@
 package com.loopers.domain.saga;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +20,7 @@ public class SagaService {
     private final ObjectMapper objectMapper;
 
     @Transactional
-    public void inbound(SagaCommand.Inbound command) {
+    public SagaResult.Inbound inbound(SagaCommand.Inbound command) {
         Inbox inbox = Inbox.builder()
                 .eventId(command.eventId())
                 .eventName(command.eventName())
@@ -24,10 +28,12 @@ public class SagaService {
                 .build();
 
         sagaRepository.save(inbox);
+
+        return SagaResult.Inbound.from(inbox);
     }
 
     @Transactional
-    public void outbound(SagaCommand.Outbound command) {
+    public SagaResult.Outbound outbound(SagaCommand.Outbound command) {
         Outbox outbox = Outbox.builder()
                 .eventId(command.eventId())
                 .eventName(command.eventName())
@@ -35,20 +41,20 @@ public class SagaService {
                 .build();
 
         sagaRepository.save(outbox);
+
+        return SagaResult.Outbound.from(outbox);
     }
 
-    private String serialize(Object value) {
-        if (value == null)
+    private Map<String, Object> serialize(Object payload) {
+        if (payload == null)
             return null;
 
-        String serializedValue = null;
-        try {
-            serializedValue = objectMapper.writeValueAsString(value);
-        } catch (JsonProcessingException e) {
-            throw new CoreException(ErrorType.INTERNAL_ERROR, e.getMessage());
+        if (payload instanceof Map map) {
+            return Collections.unmodifiableMap(map);
         }
 
-        return serializedValue;
+        return objectMapper.convertValue(payload, new TypeReference<Map<String, Object>>() {
+        });
     }
 
 }

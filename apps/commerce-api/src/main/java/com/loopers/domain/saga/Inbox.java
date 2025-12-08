@@ -3,13 +3,17 @@ package com.loopers.domain.saga;
 import com.loopers.domain.BaseEntity;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
+import io.hypersistence.utils.hibernate.type.json.JsonStringType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 import org.springframework.util.StringUtils;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -32,12 +36,12 @@ public class Inbox extends BaseEntity {
     @Column(name = "event_name", nullable = false, updatable = false)
     private String eventName;
 
-    @Lob
+    @Type(JsonStringType.class)
     @Column(name = "payload", nullable = false)
-    private String payload;
+    private Map<String, Object> payload;
 
     @Builder
-    private Inbox(UUID eventId, String eventName, String payload) {
+    private Inbox(UUID eventId, String eventName, Map<String, Object> payload) {
         if (eventId == null)
             throw new CoreException(ErrorType.BAD_REQUEST, "이벤트ID가 올바르지 않습니다.");
 
@@ -46,7 +50,7 @@ public class Inbox extends BaseEntity {
 
         this.eventId = eventId;
         this.eventName = eventName;
-        this.payload = payload;
+        this.payload = payload == null ? null : Collections.unmodifiableMap(payload);
     }
 
 }
