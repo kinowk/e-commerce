@@ -7,10 +7,10 @@ import java.util.UUID;
 
 public class UserEvent {
 
-    public record Join(UUID eventId, String eventName, Long userId) implements SagaEvent {
+    public record Join(String eventId, String eventName, Long userId) implements SagaEvent {
         public static UserEvent.Join from(User user) {
             return new UserEvent.Join(
-                    UUID.randomUUID(),
+                    UUID.randomUUID().toString(),
                     "User.Join",
                     user.getId()
             );

@@ -6,4 +6,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Inboxing {
+
+    boolean async() default false;
+
+    boolean idempotent() default false;
 }

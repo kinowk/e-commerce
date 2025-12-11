@@ -14,7 +14,6 @@ import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.UUID;
 
 @Getter
 @Entity
@@ -28,7 +27,7 @@ public class Outbox extends BaseEntity {
     private Long id;
 
     @Column(name = "event_id", nullable = false, updatable = false)
-    private UUID eventId;
+    private String eventId;
 
     @Column(name = "event_name", nullable = false, updatable = false)
     private String eventName;
@@ -38,8 +37,8 @@ public class Outbox extends BaseEntity {
     private Map<String, Object> payload;
 
     @Builder
-    private Outbox(UUID eventId, String eventName, Map<String, Object> payload) {
-        if (eventId == null)
+    private Outbox(String eventId, String eventName, Map<String, Object> payload) {
+        if (!StringUtils.hasText(eventId))
             throw new CoreException(ErrorType.BAD_REQUEST, "이벤트ID가 올바르지 않습니다");
 
         if (!StringUtils.hasText(eventName))

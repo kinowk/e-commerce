@@ -25,9 +25,6 @@ public class SagaEventPublisher implements ApplicationEventPublisher {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void beforeCommit(boolean readOnly) {
-                    if (readOnly)
-                        return;
-
                     SagaCommand.Outbound command = new SagaCommand.Outbound(
                             sagaEvent.eventId(),
                             sagaEvent.eventName(),

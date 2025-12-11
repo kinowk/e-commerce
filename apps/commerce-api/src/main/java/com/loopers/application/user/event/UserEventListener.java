@@ -14,7 +14,7 @@ public class UserEventListener {
 
     private final PointService pointService;
 
-    @Inboxing
+    @Inboxing(idempotent = true)
     @TransactionalEventListener
     public void createUserPoint(UserEvent.Join event) {
         PointCommand.Charge command = new PointCommand.Charge(event.userId(), 0L);

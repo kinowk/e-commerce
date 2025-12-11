@@ -21,13 +21,13 @@ public class SagaRepositoryImpl implements SagaRepository {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void save(Inbox inbox) {
-        inboxJpaRepository.insertIfNotExists(inbox.getEventId(), inbox.getEventName(), serialize(inbox.getPayload()), inbox.getCreatedAt(), inbox.getUpdatedAt());
+    public boolean save(Inbox inbox) {
+        return inboxJpaRepository.insertIfNotExists(inbox.getEventId(), inbox.getEventName(), serialize(inbox.getPayload()), inbox.getCreatedAt(), inbox.getUpdatedAt()) == 1;
     }
 
     @Override
-    public void save(Outbox outbox) {
-        outboxJpaRepository.insertIfNotExists(outbox.getEventId(), outbox.getEventName(), serialize(outbox.getPayload()), outbox.getCreatedAt(), outbox.getUpdatedAt());
+    public boolean save(Outbox outbox) {
+        return outboxJpaRepository.insertIfNotExists(outbox.getEventId(), outbox.getEventName(), serialize(outbox.getPayload()), outbox.getCreatedAt(), outbox.getUpdatedAt()) == 1;
     }
 
     private String serialize(Map<String, Object> payload) {

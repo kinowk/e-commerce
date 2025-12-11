@@ -6,10 +6,10 @@ import java.util.UUID;
 
 public record LikeEvent() {
 
-    public record Like(UUID eventId, String eventName, Long userId, Long productId) implements SagaEvent {
+    public record Like(String eventId, String eventName, Long userId, Long productId) implements SagaEvent {
         public static Like from(Long userId, Long productId) {
             return new Like(
-                    UUID.randomUUID(),
+                    UUID.randomUUID().toString(),
                     "Like.Product.Like",
                     userId,
                     productId
@@ -17,10 +17,10 @@ public record LikeEvent() {
         }
     }
 
-    public record Dislike(UUID eventId, String eventName, Long userId, Long productId) implements SagaEvent {
+    public record Dislike(String eventId, String eventName, Long userId, Long productId) implements SagaEvent {
         public static Dislike from(Long userId, Long productId) {
             return new Dislike(
-                    UUID.randomUUID(),
+                    UUID.randomUUID().toString(),
                     "Like.Product.Dislike",
                     userId,
                     productId

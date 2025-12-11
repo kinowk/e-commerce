@@ -1,10 +1,7 @@
 package com.loopers.domain.saga;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,9 +24,9 @@ public class SagaService {
                 .payload(serialize(command.payload()))
                 .build();
 
-        sagaRepository.save(inbox);
+        boolean saved = sagaRepository.save(inbox);
 
-        return SagaResult.Inbound.from(inbox);
+        return SagaResult.Inbound.from(inbox, saved);
     }
 
     @Transactional
@@ -40,9 +37,9 @@ public class SagaService {
                 .payload(serialize(command.payload()))
                 .build();
 
-        sagaRepository.save(outbox);
+        boolean saved = sagaRepository.save(outbox);
 
-        return SagaResult.Outbound.from(outbox);
+        return SagaResult.Outbound.from(outbox, saved);
     }
 
     private Map<String, Object> serialize(Object payload) {

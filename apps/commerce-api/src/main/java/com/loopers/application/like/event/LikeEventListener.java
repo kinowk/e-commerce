@@ -17,14 +17,14 @@ public class LikeEventListener {
     private final ProductService productService;
 
     @Async
-    @Inboxing
+    @Inboxing(async = true)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void likeProduct(LikeEvent.Like event) {
         productService.likeProduct(event.productId());
     }
 
     @Async
-    @Inboxing
+    @Inboxing(async = true)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void dislikeProduct(LikeEvent.Dislike event) {
         productService.dislikeProduct(event.productId());
