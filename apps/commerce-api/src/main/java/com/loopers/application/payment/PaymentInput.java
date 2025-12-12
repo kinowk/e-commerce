@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PaymentInput {
-    public record Pay(Long orderId, Long userId, PaymentMethod paymentMethod) {
+
+    public record Ready(Long orderId, Long userId, PaymentMethod paymentMethod) {
+
     }
+
 }

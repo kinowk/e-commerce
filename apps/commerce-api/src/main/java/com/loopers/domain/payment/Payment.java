@@ -60,4 +60,12 @@ public class Payment extends BaseEntity {
         this.status = status;
         this.method = method;
     }
+
+    public void fail() {
+        this.status = PaymentStatus.PENDING;
+    }
+
+    public void success() {
+        this.status = PaymentStatus.COMPLETED;
+    }
 }

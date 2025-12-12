@@ -31,7 +31,7 @@ public class PaymentFacade {
     private final PointService pointService;
 
     @Transactional
-    public PaymentOutput.Pay pay(PaymentInput.Pay input) {
+    public PaymentOutput.Ready ready(PaymentInput.Ready input) {
         Long userId = input.userId();
         Long orderId = input.orderId();
 
@@ -74,7 +74,13 @@ public class PaymentFacade {
         PaymentResult.Pay paymentResult = paymentService.pay(paymentCommand);
         orderService.complete(orderId);
 
-        return PaymentOutput.Pay.from(paymentResult);
+        return PaymentOutput.Ready.from(paymentResult);
     }
 
+    public void pay(Long paymentId) {
+        PaymentResult.GetPayment paymentResult = paymentService.getPayment(paymentId);
+
+        OrderCommand.GetOrderDetail orderCommand = new OrderCommand.GetOrderDetail(paymentResult.userId(), paymentResult.orderId());
+        OrderResult.GetOrderDetail orderResult = orderService.getOrderDetail(orderCommand);
+    }
 }

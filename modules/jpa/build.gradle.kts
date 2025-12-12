@@ -18,4 +18,8 @@ dependencies {
 
     testFixturesImplementation("org.springframework.boot:spring-boot-starter-data-jpa")
     testFixturesImplementation("org.testcontainers:mysql")
+
+    // JSON type Column
+    api("io.hypersistence:hypersistence-utils-hibernate-63")
+    runtimeOnly("com.fasterxml.jackson.module:jackson-module-jakarta-xmlbind-annotations")
 }

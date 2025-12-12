@@ -1,7 +1,8 @@
 package com.loopers.domain.like;
 
-import com.loopers.domain.product.ProductRepository;
+import com.loopers.domain.like.event.LikeEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +13,7 @@ import java.util.List;
 public class LikeService {
 
     private final LikeRepository likeRepository;
-    private final ProductRepository productRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional(readOnly = true)
     public LikeResult.GetLikeProducts getLikeProducts(Long userId) {
@@ -39,9 +40,10 @@ public class LikeService {
                 .productId(productId)
                 .build();
 
-        likeRepository.save(like);
+        Like savedLike = likeRepository.save(like);
 
-        productRepository.increaseLikeCount(productId);
+        LikeEvent.Like event = LikeEvent.Like.from(userId, productId);
+        applicationEventPublisher.publishEvent(event);
     }
 
     @Transactional
@@ -55,6 +57,7 @@ public class LikeService {
 
         likeRepository.deleteByUserIdAndProductId(userId, productId);
 
-        productRepository.decreaseLikeCount(productId);
+        LikeEvent.Dislike event = LikeEvent.Dislike.from(userId, productId);
+        applicationEventPublisher.publishEvent(event);
     }
 }

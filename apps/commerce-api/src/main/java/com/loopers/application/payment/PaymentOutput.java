@@ -7,12 +7,14 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PaymentOutput {
-    public record Pay(Long paymentId, PaymentStatus paymentStatus) {
-        public static Pay from(PaymentResult.Pay result) {
-            return new Pay(
+
+    public record Ready(Long paymentId, PaymentStatus paymentStatus) {
+        public static Ready from(PaymentResult.Pay result) {
+            return new Ready(
                     result.paymentId(),
                     result.paymentStatus()
             );
         }
     }
+
 }

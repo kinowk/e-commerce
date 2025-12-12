@@ -43,6 +43,11 @@ subprojects {
         imports {
             mavenBom("org.springframework.cloud:spring-cloud-dependencies:${project.properties["springCloudDependenciesVersion"]}")
         }
+
+        dependencies {
+            // Hypersistence utils
+            dependency("io.hypersistence:hypersistence-utils-hibernate-63:3.7.0")
+        }
     }
 
     dependencies {
