@@ -152,4 +152,14 @@ public class ProductService {
 
         productRepository.saveStocks(List.copyOf(stockMap.values()));
     }
+
+    @Transactional
+    public void likeProduct(Long productId) {
+        productRepository.increaseLikeCount(productId);
+    }
+
+    @Transactional
+    public void dislikeProduct(Long productId) {
+        productRepository.decreaseLikeCount(productId);
+    }
 }
