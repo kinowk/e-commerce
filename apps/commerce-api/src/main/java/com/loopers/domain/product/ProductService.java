@@ -1,9 +1,11 @@
 package com.loopers.domain.product;
 
+import com.loopers.domain.product.event.ProductEvent;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,6 +27,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional(readOnly = true)
     public ProductResult.GetProductDetail getProductDetail(Long productId) {
@@ -155,11 +158,24 @@ public class ProductService {
 
     @Transactional
     public void likeProduct(Long productId) {
-        productRepository.increaseLikeCount(productId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+
+        product.like();
+        productRepository.save(product);
+//        productRepository.increaseLikeCount(productId);
+
+        applicationEventPublisher.publishEvent(ProductEvent.Like.from(product));
     }
 
     @Transactional
     public void dislikeProduct(Long productId) {
-        productRepository.decreaseLikeCount(productId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+
+        productRepository.save(product);
+//        productRepository.decreaseLikeCount(productId);
+
+        applicationEventPublisher.publishEvent(ProductEvent.Dislike.from(product));
     }
 }
