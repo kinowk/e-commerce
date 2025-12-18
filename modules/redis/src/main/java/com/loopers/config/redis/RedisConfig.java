@@ -68,6 +68,11 @@ public class RedisConfig{
         return defaultRedisTemplate(redisTemplate, lettuceConnectionFactory);
     }
 
+    @Bean
+    public RedisTemplate<String, Object> objectRedisTemplate(LettuceConnectionFactory lettuceConnectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        return defaultRedisTemplate(redisTemplate, lettuceConnectionFactory);
+    }
 
     private LettuceConnectionFactory lettuceConnectionFactory(
             int database,
