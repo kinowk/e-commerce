@@ -29,6 +29,12 @@ demo-kafka:
   test:
     topic-name: demo.internal.topic-v1
 
+loopers:
+  kafka:
+    topics:
+      LikeEvent.Like: Like.like.v1
+      LikeEvent.Dislike: Like.dislike.v1
+
 ---
 spring:
   config:

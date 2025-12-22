@@ -32,20 +32,35 @@ public class Outbox extends BaseEntity {
     @Column(name = "event_name", nullable = false, updatable = false)
     private String eventName;
 
+    @Column(name = "aggregate_id", nullable = false, updatable = false)
+    private String aggregateId;
+
     @Type(JsonStringType.class)
-    @Column(name = "payload", nullable = false)
+    @Column(name = "payload", nullable = false, updatable = false)
     private Map<String, Object> payload;
 
+    @Column(name = "consumer", nullable = false, updatable = false)
+    private String consumer;
+
+
     @Builder
-    private Outbox(String eventId, String eventName, Map<String, Object> payload) {
+    private Outbox(String eventId, String eventName, String aggregateId, String consumer, Map<String, Object> payload) {
         if (!StringUtils.hasText(eventId))
             throw new CoreException(ErrorType.BAD_REQUEST, "이벤트ID가 올바르지 않습니다");
 
         if (!StringUtils.hasText(eventName))
             throw new CoreException(ErrorType.BAD_REQUEST, "이벤트명이 올바르지 않습니다.");
 
+        if (!StringUtils.hasText(aggregateId))
+            throw new CoreException(ErrorType.BAD_REQUEST);
+
+        if (!StringUtils.hasText(consumer))
+            throw new CoreException(ErrorType.BAD_REQUEST);
+
         this.eventId = eventId;
         this.eventName = eventName;
+        this.aggregateId = aggregateId;
+        this.consumer = consumer;
         this.payload = payload == null ? null : Collections.unmodifiableMap(payload);
     }
 

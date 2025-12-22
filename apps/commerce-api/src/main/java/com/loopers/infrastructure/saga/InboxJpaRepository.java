@@ -11,11 +11,11 @@ import java.time.ZonedDateTime;
 public interface InboxJpaRepository extends JpaRepository<Inbox, Long> {
 
     @Modifying
-    @Query("""
-            insert into inbox (eventId, eventName, payload, createdAt, updatedAt)
-            values (:eventId, :eventName, :payload, :createdAy, :updatedAt)
-            on conflict (eventId, eventName) do noting
-            """)
+    @Query(value = """
+            insert into inbox (event_id, event_name, payload, created_at, updated_at)
+            values (:eventId, :eventName, :payload, :createdAt, :updatedAt)
+            on conflict (event_id, event_name) do nothing
+            """, nativeQuery = true)
     int insertIfNotExists(
             @Param("eventId") String eventId,
             @Param("eventName") String eventName,
