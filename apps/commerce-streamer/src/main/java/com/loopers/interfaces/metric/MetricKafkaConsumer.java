@@ -6,8 +6,6 @@ import com.loopers.application.metric.MetricFacade;
 import com.loopers.application.metric.MetricInput;
 import com.loopers.config.kafka.KafkaConfig;
 import com.loopers.domain.kafka.KafkaMessage;
-import com.loopers.domain.metric.MetricCommand;
-import com.loopers.domain.metric.MetricService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
