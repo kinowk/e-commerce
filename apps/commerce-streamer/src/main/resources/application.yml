@@ -34,6 +34,7 @@ loopers:
     topics:
       LikeEvent.Like: Like.like.v1
       LikeEvent.Dislike: Like.dislike.v1
+      ProductEvent.Ranking: Product.ranking.v1
 
 ---
 spring:
