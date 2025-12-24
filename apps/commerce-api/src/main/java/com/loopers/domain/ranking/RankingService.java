@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,21 +27,26 @@ public class RankingService {
                 redisTemplate.opsForZSet()
                         .reverseRangeWithScores(key, start, end);
 
-        if (result == null)
+        if (result == null || result.isEmpty())
             return List.of();
 
         AtomicLong rank = new AtomicLong(start + 1);
 
         return result.stream()
-                .map(item -> new RankingResult())
-                .toList();
+                .map(tuple -> {
+                    Long productId = Long.parseLong(tuple.getValue());
+                    Double score = tuple.getScore();
+                    Long currentRank = rank.getAndIncrement();
+                    return RankingResult.of(currentRank, productId, score);
+                })
+                .collect(Collectors.toList());
     }
 
     public Long getProductRank(String date, Long productId) {
         String key = RANKING_KEY_PREFIX + date;
 
         Long rank = redisTemplate.opsForZSet()
-                .reverseRank(key, productId);
+                .reverseRank(key, productId.toString());
 
         return (rank == null) ? null : rank + 1;
     }
