@@ -30,10 +30,6 @@ public class ProductRankingConsumer {
     private static final String RANKING_KEY_PREFIX = "ranking:all:";
     private static final long TTL_SECONDS = 60 * 60 * 24 * 2; // 2 days
 
-    private static final double WEIGHT_VIEW = 0.1;
-    private static final double WEIGHT_LIKE = 0.2;
-    private static final double WEIGHT_ORDER = 0.6;
-
     @KafkaListener(
             topics = "${loopers.kafka.topics.ProductEvent.Ranking}",
             containerFactory = KafkaConfig.BATCH_LISTENER
