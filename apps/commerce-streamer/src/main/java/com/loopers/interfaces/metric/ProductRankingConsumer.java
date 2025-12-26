@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopers.config.kafka.KafkaConfig;
 import com.loopers.domain.kafka.KafkaMessage;
+import com.loopers.domain.ranking.RankingWeightService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -26,6 +27,7 @@ public class ProductRankingConsumer {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
+    private final RankingWeightService weightService; // 추가
 
     private static final String RANKING_KEY_PREFIX = "ranking:all:";
     private static final long TTL_SECONDS = 60 * 60 * 24 * 2; // 2 days
@@ -90,9 +92,9 @@ public class ProductRankingConsumer {
         }
 
         String key = generateKey();
-
         if (!redisTemplate.hasKey(key)) {
             redisTemplate.expire(key, java.time.Duration.ofSeconds(TTL_SECONDS));
+            log.info("Created new ranking key: {} with TTL: {} seconds", key, TTL_SECONDS);
         }
 
         events.stream()
@@ -140,11 +142,11 @@ public class ProductRankingConsumer {
 
     private double calculateScore(ProductRankingEvent event) {
         return switch (event.type()) {
-            case "VIEW" -> WEIGHT_VIEW * event.amount();
-            case "LIKE" -> WEIGHT_LIKE * event.amount();
+            case "VIEW" -> weightService.getViewWeight() * event.amount();
+            case "LIKE" -> weightService.getLikeWeight() * event.amount();
             case "ORDER" -> {
                 double orderScore = event.price() * event.amount();
-                yield WEIGHT_ORDER * Math.log1p(orderScore);
+                yield weightService.getOrderWeight() * Math.log1p(orderScore);
             }
             default -> 0.0;
         };
@@ -152,5 +154,4 @@ public class ProductRankingConsumer {
 
     private record ProductEventPayload(Long productId, Long likeCount) {}
     private record LikeEventPayload(Long userId, Long productId) {}
-
 }

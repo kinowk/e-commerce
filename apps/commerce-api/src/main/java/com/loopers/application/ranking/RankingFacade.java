@@ -25,10 +25,17 @@ public class RankingFacade {
                 command.page(),
                 command.size()
         );
-        return RankingOutput.GetRankings.from(results, input.page(), input.size());
+
+        long total = rankingService.getTotalCount(command.date());
+
+        return RankingOutput.GetRankings.from(results, input.page(), input.size(), total);
     }
 
     public Long getProductRank(String date, Long productId) {
         return rankingService.getProductRank(date, productId);
+    }
+
+    public Double getProductScore(String date, Long productId) {
+        return rankingService.getProductScore(date, productId);
     }
 }

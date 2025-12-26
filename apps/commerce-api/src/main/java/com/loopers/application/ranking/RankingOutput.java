@@ -10,7 +10,7 @@ import java.util.List;
 public class RankingOutput {
 
     public record GetRankings(List<RankingItem> items, int page, int size, long total) {
-        public static GetRankings from(List<RankingResult> results, int page, int size) {
+        public static GetRankings from(List<RankingResult> results, int page, int size, long total) {
             List<RankingItem> items = results.stream()
                     .map(result -> new RankingItem(
                             result.rank(),
@@ -18,7 +18,7 @@ public class RankingOutput {
                             result.score()
                     ))
                     .toList();
-            return new GetRankings(items, page, size, items.size());
+            return new GetRankings(items, page, size, total);
         }
     }
 

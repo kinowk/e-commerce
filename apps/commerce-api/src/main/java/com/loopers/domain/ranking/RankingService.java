@@ -50,4 +50,25 @@ public class RankingService {
 
         return (rank == null) ? null : rank + 1;
     }
+
+    public Double getProductScore(String date, Long productId) {
+        String key = RANKING_KEY_PREFIX + date;
+
+        return redisTemplate.opsForZSet()
+                .score(key, productId.toString());
+    }
+
+    public Long getTotalCount(String date) {
+        String key = RANKING_KEY_PREFIX + date;
+
+        Long count = redisTemplate.opsForZSet()
+                .zCard(key);
+
+        return count != null ? count : 0L;
+    }
+
+    public boolean exists(String date) {
+        String key = RANKING_KEY_PREFIX + date;
+        return redisTemplate.hasKey(key);
+    }
 }
