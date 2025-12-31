@@ -24,4 +24,5 @@ public interface ProductV1ApiSpec {
     ApiResponse<ProductResponse.GetProductDetail> getProduct(
             @Schema(name = "상품 ID", description = "조회할 상품 Id") Long productId
     );
+
 }

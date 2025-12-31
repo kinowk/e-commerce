@@ -38,8 +38,8 @@ public class ProductOutput {
         }
     }
 
-    public record GetProductDetail(Long productId, String productName, Integer basePrice, Long likeCount, Long brandId, String brandName, String brandDescription) {
-        public static GetProductDetail from(ProductResult.GetProductDetail productResult, Long likeCount, BrandResult.GetBrand brandResult) {
+    public record GetProductDetail(Long productId, String productName, Integer basePrice, Long likeCount, Long brandId, String brandName, String brandDescription, Long rank) {
+        public static GetProductDetail from(ProductResult.GetProductDetail productResult, Long likeCount, BrandResult.GetBrand brandResult, Long rank) {
             return new GetProductDetail(
                     productResult.productId(),
                     productResult.productName(),
@@ -47,7 +47,8 @@ public class ProductOutput {
                     likeCount,
                     brandResult.getId(),
                     brandResult.getName(),
-                    brandResult.getDescription()
+                    brandResult.getDescription(),
+                    rank
             );
         }
 
