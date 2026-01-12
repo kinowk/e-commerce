@@ -1,5 +1,7 @@
 package com.loopers.domain.user;
 
+import com.loopers.domain.BaseEntity;
+import com.loopers.domain.BaseTimeEntity;
 import com.loopers.domain.user.attribute.Gender;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -19,7 +21,7 @@ import java.util.regex.Pattern;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
-public class User {
+public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
