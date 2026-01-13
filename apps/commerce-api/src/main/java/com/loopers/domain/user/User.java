@@ -50,7 +50,6 @@ public class User extends BaseTimeEntity {
     private static final Pattern LOGIN_ID_PATTERN = Pattern.compile("^[a-zA-Z0-9]{1,10}$");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT);
 
-
     public User(String username, String loginId, String password, String email, String birthDate, Gender gender) {
         validateUsername(username);
         validateLoginId(loginId);
@@ -92,7 +91,7 @@ public class User extends BaseTimeEntity {
     }
 
     private void validateBirthDate(String birthDate) {
-        if (!StringUtils.hasText(email)) {
+        if (!StringUtils.hasText(birthDate)) {
             throw new CoreException(ErrorType.BAD_REQUEST);
         }
 
