@@ -3,8 +3,8 @@ package com.loopers.interfaces.api.user;
 import com.loopers.interfaces.api.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "User V1 API", description = "사용자 관련 API")
 public interface UserV1ApiSpec {
@@ -17,7 +17,7 @@ public interface UserV1ApiSpec {
             @RequestBody UserRequest.Join request
     );
 
-    @Operation(
+        @Operation(
             summary = "회원조회",
             description = "로그인 ID로 회원을 조회합니다."
     )
