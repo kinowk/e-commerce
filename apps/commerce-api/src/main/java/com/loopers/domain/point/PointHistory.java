@@ -23,6 +23,9 @@ public class PointHistory extends BaseTimeEntity {
     @Column(name = "ref_point_id", nullable = false)
     private Long pointId;
 
+    @Column(name = "ref_user_id", nullable = false)
+    private Long userId;
+
     @Column(name = "amount", nullable = false)
     private Long amount;
 
@@ -33,11 +36,12 @@ public class PointHistory extends BaseTimeEntity {
     @Column(name = "description", nullable = false)
     private String description;
 
-    public PointHistory(Long pointId, Long amount, PointHistoryType type, String description) {
+    public PointHistory(Long pointId, Long userId, Long amount, PointHistoryType type, String description) {
         validateAmount(amount);
         validateDescription(description);
 
         this.pointId = pointId;
+        this.userId = userId;
         this.amount = amount;
         this.type = type;
         this.description = description;
