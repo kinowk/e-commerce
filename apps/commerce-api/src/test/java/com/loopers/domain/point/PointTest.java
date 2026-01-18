@@ -87,6 +87,23 @@ class PointTest {
                     .extracting("errorType")
                     .isEqualTo(ErrorType.BAD_REQUEST);
         }
+
+        @DisplayName("포인트 충전 시 잔액이 Long.MAX_VALUE를 초과하는 경우, 400 에러를 발생한다")
+        @Test
+        void throwsException_whenChargeAmountIsGreaterThanMax() {
+            // given
+            Long userId = 1L;
+            Long balance = Long.MAX_VALUE - 1000L;
+            Point point = new Point(userId, balance);
+
+            Long amount = 1001L;
+
+            // when & then
+            assertThatThrownBy(() -> point.charge(amount))
+                    .isInstanceOf(CoreException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.BAD_REQUEST);
+        }
     }
 
     @DisplayName("포인트 차감 시")

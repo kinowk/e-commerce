@@ -24,6 +24,8 @@ public class Point extends BaseTimeEntity {
     @Column(name = "balance", nullable = false)
     private Long balance;
 
+    private static Long MAX_BALANCE = Long.MAX_VALUE;
+
     public Point(Long userId, Long balance) {
         validateBalance(balance);
 
@@ -42,8 +44,11 @@ public class Point extends BaseTimeEntity {
             throw new CoreException(ErrorType.BAD_REQUEST);
         }
 
-        this.balance += amount;
+        if (MAX_BALANCE - amount < this.balance) {
+            throw new CoreException(ErrorType.BAD_REQUEST);
+        }
 
+        this.balance += amount;
         return this.balance;
     }
 
