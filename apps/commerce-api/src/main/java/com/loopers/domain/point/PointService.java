@@ -1,5 +1,6 @@
 package com.loopers.domain.point;
 
+import com.loopers.domain.point.attribute.PointHistoryType;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.support.error.CoreException;
@@ -35,6 +36,10 @@ public class PointService {
 
         point.charge(amount);
         Point savedPoint = pointRepository.save(point);
+
+        PointHistory pointHistory = new PointHistory(savedPoint.getId(), savedPoint.getUserId(), amount, PointHistoryType.EARN, "포인트 충전");
+        pointRepository.save(pointHistory);
+
         return new PointResult.Charge(loginId, amount, savedPoint.getBalance());
     }
 }
