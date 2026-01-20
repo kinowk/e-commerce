@@ -1,5 +1,9 @@
 package com.loopers.domain.user;
 
+import com.loopers.domain.point.Point;
+import com.loopers.domain.point.PointHistory;
+import com.loopers.domain.point.PointRepository;
+import com.loopers.domain.point.attribute.PointHistoryType;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PointRepository pointRepository;
 
     public UserResult.Join join(UserCommand.Join command) {
         userRepository.findByLoginId(command.loginId())
@@ -26,6 +31,13 @@ public class UserService {
                 command.gender()
         );
         User savedUser = userRepository.save(user);
+
+        Point point = new Point(savedUser.getId(), 0L);
+        Point savedPoint = pointRepository.save(point);
+
+        PointHistory pointHistory = new PointHistory(savedPoint.getId(), savedUser.getId(), 0L, PointHistoryType.EARN, "회원가입");
+        pointRepository.save(pointHistory);
+
         return UserResult.Join.from(savedUser);
     }
 
