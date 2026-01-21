@@ -8,6 +8,7 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +17,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PointRepository pointRepository;
 
+    @Transactional
     public UserResult.Join join(UserCommand.Join command) {
         userRepository.findByLoginId(command.loginId())
                 .ifPresent(user -> {
@@ -41,6 +43,7 @@ public class UserService {
         return UserResult.Join.from(savedUser);
     }
 
+    @Transactional(readOnly = true)
     public UserResult.GetUser getUser(String loginId) {
         return userRepository.findByLoginId(loginId)
                 .map(UserResult.GetUser::from)

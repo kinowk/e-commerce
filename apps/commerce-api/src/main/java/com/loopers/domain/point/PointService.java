@@ -7,6 +7,7 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +16,7 @@ public class PointService {
     private final UserRepository userRepository;
     private final PointRepository pointRepository;
 
+    @Transactional(readOnly = true)
     public PointResult.GetPoint getPoint(String loginId) {
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
@@ -24,6 +26,7 @@ public class PointService {
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
     }
 
+    @Transactional
     public PointResult.Charge charge(PointCommand.Charge command) {
         String loginId = command.loginId();
         Long amount = command.amount();
