@@ -6,6 +6,9 @@ import com.loopers.domain.user.UserRepository;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,11 @@ public class PointService {
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
     }
 
+    @Retryable(
+            value = {ObjectOptimisticLockingFailureException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )
     @Transactional
     public PointResult.Charge charge(PointCommand.Charge command) {
         String loginId = command.loginId();

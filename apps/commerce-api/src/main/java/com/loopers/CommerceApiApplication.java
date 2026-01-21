@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import java.util.TimeZone;
 
+@EnableRetry
 @ConfigurationPropertiesScan
 @SpringBootApplication
 public class CommerceApiApplication {
