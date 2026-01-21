@@ -24,6 +24,9 @@ public class Point extends BaseTimeEntity {
     @Column(name = "balance", nullable = false)
     private Long balance;
 
+    @Version
+    private Long version;
+
     private static Long MAX_BALANCE = Long.MAX_VALUE;
 
     public Point(Long userId, Long balance) {

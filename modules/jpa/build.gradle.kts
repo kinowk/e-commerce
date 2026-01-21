@@ -6,6 +6,9 @@ plugins {
 dependencies {
     // jpa
     api("org.springframework.boot:spring-boot-starter-data-jpa")
+    // spring-retry
+    api("org.springframework.retry:spring-retry")
+    api("org.springframework:spring-aspects")
     // querydsl
     api("com.querydsl:querydsl-jpa::jakarta")
     annotationProcessor("com.querydsl:querydsl-apt::jakarta")
