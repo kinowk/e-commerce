@@ -23,4 +23,8 @@ public class UserFacade {
         return UserOutput.GetUser.from(result);
     }
 
+    public UserOutput.GetUser getUserById(Long userId) {
+        UserResult.GetUser result = userService.getUserById(userId);
+        return UserOutput.GetUser.from(result);
+    }
 }

@@ -31,7 +31,7 @@ public interface UserV1ApiSpec {
             description = "내 정보를 조회합니다."
     )
     ApiResponse<UserResponse.GetUser> getCurrentUser(
-            @Schema(name = ApiHeader.X_USER_ID, description = "사용자 로그인 ID") String loginId
+            @Schema(name = ApiHeader.X_USER_ID, description = "사용자 ID") Long userId
     );
 
 }

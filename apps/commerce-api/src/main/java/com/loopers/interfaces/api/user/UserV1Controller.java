@@ -33,8 +33,8 @@ public class UserV1Controller implements UserV1ApiSpec {
 
     @GetMapping("/me")
     @Override
-    public ApiResponse<UserResponse.GetUser> getCurrentUser(@RequestHeader("X-USER-ID") String loginId) {
-        UserOutput.GetUser output = userFacade.getUser(loginId);
+    public ApiResponse<UserResponse.GetUser> getCurrentUser(@RequestHeader("X-USER-ID") Long userId) {
+        UserOutput.GetUser output = userFacade.getUserById(userId);
         UserResponse.GetUser response = UserResponse.GetUser.from(output);
         return ApiResponse.success(response);
     }
