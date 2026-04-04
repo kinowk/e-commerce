@@ -66,10 +66,12 @@ public class OrderService {
         Long userId = userRepository.findByLoginId(command.userLoginId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자를 찾을 수 없습니다."))
                 .getId();
-        Point point = pointRepository.findByUserIdForUpdate(userId)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "포인트 정보를 찾을 수 없습니다."));
-        point.deduct(finalAmount);
-        pointRepository.save(point);
+        if (finalAmount > 0) {
+            Point point = pointRepository.findByUserIdForUpdate(userId)
+                    .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "포인트 정보를 찾을 수 없습니다."));
+            point.deduct(finalAmount);
+            pointRepository.save(point);
+        }
 
         // 주문 저장
         Order order = new Order(command.userLoginId(), totalAmount, discountAmount, command.couponId());

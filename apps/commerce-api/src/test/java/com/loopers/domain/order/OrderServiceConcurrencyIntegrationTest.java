@@ -167,10 +167,10 @@ class OrderServiceConcurrencyIntegrationTest {
             latch.await();
             executor.shutdown();
 
-            // assert: 포인트 잔액은 0 이상이어야 함
+            // assert: 모든 주문이 성공하고 포인트가 정확히 차감되어야 함
             com.loopers.domain.point.PointResult.GetPoint pointResult = pointService.getPoint("concUser");
-            assertThat(pointResult.balance()).isGreaterThanOrEqualTo(0L);
-            assertThat(successCount.get()).isLessThanOrEqualTo(threadCount);
+            assertThat(successCount.get()).isEqualTo(threadCount);
+            assertThat(pointResult.balance()).isEqualTo(0L);
         }
     }
 

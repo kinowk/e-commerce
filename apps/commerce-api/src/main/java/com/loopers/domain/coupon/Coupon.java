@@ -35,6 +35,12 @@ public class Coupon extends BaseTimeEntity {
     private LocalDateTime usedAt;
 
     public Coupon(String userLoginId, CouponType type, Long discountValue) {
+        if (userLoginId == null || userLoginId.isBlank()) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "사용자 ID가 유효하지 않습니다.");
+        }
+        if (type == null) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "쿠폰 타입은 필수입니다.");
+        }
         if (discountValue == null || discountValue <= 0) {
             throw new CoreException(ErrorType.BAD_REQUEST, "할인 값은 0보다 커야 합니다.");
         }
