@@ -2,6 +2,7 @@ package com.loopers.domain.product;
 
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.product.attribute.ProductSortType;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -70,7 +71,7 @@ public class ProductService {
 
     private String buildListCacheKey(ProductCommand.Query query) {
         String brandId = query.brandId() != null ? String.valueOf(query.brandId()) : "all";
-        String sortType = query.sortType() != null ? query.sortType().name() : "LATEST";
+        String sortType = query.sortType() != null ? query.sortType().name() : ProductSortType.LATEST.name();
         return brandId + ":" + sortType + ":" + query.page() + ":" + query.size();
     }
 }

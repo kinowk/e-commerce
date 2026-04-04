@@ -6,6 +6,7 @@ import com.loopers.domain.product.ProductRepository;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +20,7 @@ public class LikeService {
     private final ProductRepository productRepository;
     private final ProductCacheRepository productCacheRepository;
 
-    @Transactional
+    @Transactional(noRollbackFor = DataIntegrityViolationException.class)
     public LikeResult.Toggle addLike(LikeCommand.Toggle command) {
         Product product = productRepository.findByIdForUpdate(command.productId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
@@ -28,7 +29,12 @@ public class LikeService {
             return new LikeResult.Toggle(product.getId(), product.getLikeCount());
         }
 
-        likeRepository.save(new Like(command.userId(), command.productId()));
+        try {
+            likeRepository.save(new Like(command.userId(), command.productId()));
+        } catch (DataIntegrityViolationException e) {
+            return new LikeResult.Toggle(product.getId(), product.getLikeCount());
+        }
+
         product.increaseLikeCount();
         productRepository.save(product);
         productCacheRepository.evictDetail(product.getId());

@@ -24,7 +24,6 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final PointRepository pointRepository;
     private final CouponService couponService;
-    private final ExternalOrderClient externalOrderClient;
 
     @Transactional
     public OrderResult.Create createOrder(OrderCommand.Create command) {
@@ -83,9 +82,6 @@ public class OrderService {
             );
             savedItems.add(orderRepository.saveItem(item));
         }
-
-        // 외부 시스템 전송
-        externalOrderClient.send(savedOrder.getId());
 
         return OrderResult.Create.of(savedOrder, savedItems);
     }
