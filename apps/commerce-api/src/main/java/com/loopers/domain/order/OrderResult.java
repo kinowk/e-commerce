@@ -10,6 +10,7 @@ import java.util.List;
 public class OrderResult {
 
     public record Create(Long orderId, String userLoginId, Long totalAmount,
+                         Long discountAmount, Long finalAmount,
                          OrderStatus status, List<Item> items) {
         public record Item(Long productId, Long quantity, Long unitPrice, Long totalPrice) {
             public static Item from(OrderItem orderItem) {
@@ -27,6 +28,8 @@ public class OrderResult {
                     order.getId(),
                     order.getUserLoginId(),
                     order.getTotalAmount(),
+                    order.getDiscountAmount(),
+                    order.getFinalAmount(),
                     order.getStatus(),
                     items.stream().map(Item::from).toList()
             );

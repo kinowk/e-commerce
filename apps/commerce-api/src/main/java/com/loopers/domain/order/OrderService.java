@@ -1,5 +1,8 @@
 package com.loopers.domain.order;
 
+import com.loopers.domain.coupon.CouponCommand;
+import com.loopers.domain.coupon.CouponResult;
+import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.point.Point;
 import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.product.Product;
@@ -22,6 +25,7 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final PointRepository pointRepository;
+    private final CouponService couponService;
     private final ExternalOrderClient externalOrderClient;
 
     @Transactional
@@ -30,10 +34,10 @@ public class OrderService {
             throw new CoreException(ErrorType.BAD_REQUEST, "주문 항목이 비어있습니다.");
         }
 
-        // 상품 재고 확인 및 차감
+        // 상품 재고 확인 및 차감 (비관적 락)
         List<Product> orderedProducts = new ArrayList<>();
         for (OrderCommand.Create.Item item : command.items()) {
-            Product product = productRepository.findById(item.productId())
+            Product product = productRepository.findByIdForUpdate(item.productId())
                     .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품을 찾을 수 없습니다."));
             product.decreaseStock(item.quantity());
             orderedProducts.add(product);
@@ -46,17 +50,29 @@ public class OrderService {
             totalAmount += orderedProducts.get(i).getPrice() * command.items().get(i).quantity();
         }
 
-        // 포인트 확인 및 차감
+        // 쿠폰 적용 (비관적 락은 CouponService 내부에서 처리)
+        long discountAmount = 0L;
+        if (command.couponId() != null) {
+            CouponResult.Use couponResult = couponService.useForOrder(
+                    new CouponCommand.Use(command.couponId(), command.userLoginId()),
+                    totalAmount
+            );
+            discountAmount = couponResult.discountAmount();
+        }
+
+        long finalAmount = totalAmount - discountAmount;
+
+        // 포인트 확인 및 차감 (비관적 락)
         Long userId = userRepository.findByLoginId(command.userLoginId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자를 찾을 수 없습니다."))
                 .getId();
-        Point point = pointRepository.findByUserId(userId)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
-        point.deduct(totalAmount);
+        Point point = pointRepository.findByUserIdForUpdate(userId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "포인트 정보를 찾을 수 없습니다."));
+        point.deduct(finalAmount);
         pointRepository.save(point);
 
         // 주문 저장
-        Order order = new Order(command.userLoginId(), totalAmount);
+        Order order = new Order(command.userLoginId(), totalAmount, discountAmount, command.couponId());
         Order savedOrder = orderRepository.save(order);
 
         // 주문 항목 저장

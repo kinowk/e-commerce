@@ -22,7 +22,7 @@ class OrderTest {
         @ValueSource(strings = {"", " "})
         void throwsException_whenUserLoginIdIsBlank(String userLoginId) {
             // act & assert
-            assertThatThrownBy(() -> new Order(userLoginId, 1000L))
+            assertThatThrownBy(() -> new Order(userLoginId, 1000L, 0L, null))
                     .isInstanceOf(CoreException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.BAD_REQUEST);
@@ -32,7 +32,7 @@ class OrderTest {
         @Test
         void throwsException_whenTotalAmountIsNull() {
             // act & assert
-            assertThatThrownBy(() -> new Order("user1", null))
+            assertThatThrownBy(() -> new Order("user1", null, 0L, null))
                     .isInstanceOf(CoreException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.BAD_REQUEST);
@@ -43,7 +43,7 @@ class OrderTest {
         @ValueSource(longs = {-1L, -100L, Long.MIN_VALUE})
         void throwsException_whenTotalAmountIsNegative(Long totalAmount) {
             // act & assert
-            assertThatThrownBy(() -> new Order("user1", totalAmount))
+            assertThatThrownBy(() -> new Order("user1", totalAmount, 0L, null))
                     .isInstanceOf(CoreException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.BAD_REQUEST);
@@ -53,7 +53,7 @@ class OrderTest {
         @Test
         void setsStatusToPaid_whenOrderIsCreated() {
             // act
-            Order order = new Order("user1", 5000L);
+            Order order = new Order("user1", 5000L, 0L, null);
 
             // assert
             assertThat(order.getStatus()).isEqualTo(OrderStatus.PAID);

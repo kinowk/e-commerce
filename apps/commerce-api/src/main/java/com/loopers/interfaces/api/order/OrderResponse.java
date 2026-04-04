@@ -11,6 +11,7 @@ import java.util.List;
 public class OrderResponse {
 
     public record Create(Long orderId, String userLoginId, Long totalAmount,
+                         Long discountAmount, Long finalAmount,
                          OrderStatus status, List<Item> items) {
         public record Item(Long productId, Long quantity, Long unitPrice, Long totalPrice) {
             public static Item from(OrderOutput.Create.Item output) {
@@ -23,6 +24,8 @@ public class OrderResponse {
                     output.orderId(),
                     output.userLoginId(),
                     output.totalAmount(),
+                    output.discountAmount(),
+                    output.finalAmount(),
                     output.status(),
                     output.items().stream().map(Item::from).toList()
             );
