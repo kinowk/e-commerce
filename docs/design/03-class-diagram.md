@@ -8,6 +8,7 @@
 - **단방향 연관관계** 우선: `Like → Product`, `OrderItem → Product` (역방향 참조 불필요)
 - **재고 차감(`decreaseStock`)**, **좋아요 수 증감(`increaseLikeCount`)** 등 상태 변이 로직은 엔티티 메서드로 캡슐화
 - `Price`는 VO가 아닌 `Long`으로 단순화 (단일 통화 가정)
+- **유저 식별**: `X-USER-ID` 헤더는 `Long userId` (숫자 ID)를 사용한다. 다른 엔티티에서 유저를 참조할 때는 `ref_user_id` 컬럼(FK)으로 연결한다.
 
 ---
 
@@ -31,6 +32,7 @@ classDiagram
         +Long stock
         +Long likeCount
         +ProductStatus status
+        +Long version
         +decreaseStock(quantity)
         +increaseLikeCount()
         +decreaseLikeCount()
@@ -46,20 +48,39 @@ classDiagram
 
     class Like {
         +Long id
-        +String userLoginId
+        +Long userId
         +Long productId
-        +Like(userLoginId, productId)
+        +Like(userId, productId)
+    }
+
+    class Coupon {
+        +Long id
+        +Long userId
+        +CouponType type
+        +Long discountValue
+        +LocalDateTime usedAt
+        +Coupon(userId, type, discountValue)
+        +isUsed() boolean
+        +isOwnedBy(userId) boolean
+        +use()
+        +calculateDiscount(totalAmount) long
+    }
+
+    class CouponType {
+        <<enumeration>>
+        FIXED_AMOUNT
+        PERCENTAGE
     }
 
     class Order {
         +Long id
-        +String userLoginId
+        +Long userId
         +Long totalAmount
+        +Long discountAmount
+        +Long couponId
         +OrderStatus status
-        +List~OrderItem~ items
-        +Order(userLoginId, items)
-        -calculateTotalAmount()
-        -validateItems()
+        +Order(userId, totalAmount, discountAmount, couponId)
+        +getFinalAmount() Long
     }
 
     class OrderItem {
@@ -69,21 +90,20 @@ classDiagram
         +Long quantity
         +Long unitPrice
         +Long totalPrice
-        +OrderItem(productId, quantity, unitPrice)
+        +OrderItem(orderId, productId, quantity, unitPrice)
     }
 
     class OrderStatus {
         <<enumeration>>
-        PENDING
         PAID
-        CANCELLED
-        FAILED
     }
 
     Product --> ProductStatus
     Product --> Brand : brandId (ref)
     Like --> Product : productId (ref)
+    Coupon --> CouponType
     Order --> OrderStatus
+    Order --> Coupon : couponId (ref, optional)
     Order "1" *-- "1..*" OrderItem : contains
     OrderItem --> Product : productId (ref)
 ```
@@ -103,22 +123,32 @@ classDiagram
 | `increaseLikeCount()` | 좋아요 수 +1 |
 | `decreaseLikeCount()` | 좋아요 수 -1, 0 미만은 방어 |
 
-- `status`가 `INACTIVE`인 상품은 주문 불가 (도메인 규칙)
-- 재고 차감은 낙관적 락 or 비관적 락으로 동시성 보호 (구현 시 결정)
+- `status`가 `SOLD_OUT`이 되면 자동 전환 (재고 0 도달 시)
+- 재고 차감 및 좋아요 수 변경은 비관적 락으로 동시성 보호
 
 ### Like
-- `(userLoginId, productId)` 쌍이 고유함을 DB unique 제약으로 보장
+- `(userId, productId)` 쌍이 고유함을 DB unique 제약으로 보장
 - 엔티티 자체에 별도 비즈니스 로직 없음 (단순 연결 레코드)
+
+### Coupon
+| 메서드 | 책임 |
+|--------|------|
+| `isUsed()` | `usedAt != null`이면 사용 완료 |
+| `isOwnedBy(userId)` | 요청자 소유 검증 |
+| `use()` | 이미 사용된 쿠폰이면 `CoreException(CONFLICT)`, 아니면 `usedAt` 기록 |
+| `calculateDiscount(totalAmount)` | `FIXED_AMOUNT`: min(discountValue, totalAmount), `PERCENTAGE`: totalAmount × discountValue / 100 |
+
+- 쿠폰 사용은 비관적 락으로 중복 사용 방지
 
 ### Order / OrderItem
 | 메서드 | 책임 |
 |--------|------|
-| `Order(userLoginId, items)` | OrderItem 리스트로 총금액 자동 계산 |
-| `calculateTotalAmount()` | `sum(item.totalPrice)` |
-| `validateItems()` | 빈 리스트 방어 |
+| `Order(userId, totalAmount, discountAmount, couponId)` | 주문 생성, 상태 PAID로 초기화 |
+| `getFinalAmount()` | `totalAmount - discountAmount` |
+| `OrderItem(orderId, productId, quantity, unitPrice)` | 생성 시 `totalPrice = quantity × unitPrice` 고정 |
 
-- `OrderItem.totalPrice = unitPrice × quantity` (생성 시 고정)
-- 주문 생성 후 상품 가격이 변경되어도 주문 금액은 불변
+- 주문 생성 후 상품 가격이 변경되어도 주문 금액은 불변 (unit_price 스냅샷)
+- 쿠폰이 없으면 `discountAmount = 0`, `couponId = null`
 
 ---
 
@@ -133,7 +163,7 @@ interfaces/api/
   like/
     LikeV1Controller
     LikeV1ApiSpec
-    LikeRequest, LikeResponse
+    LikeResponse
   order/
     OrderV1Controller
     OrderV1ApiSpec
@@ -143,18 +173,23 @@ application/
   product/  ProductFacade, ProductInput, ProductOutput
   like/     LikeFacade, LikeInput, LikeOutput
   order/    OrderFacade, OrderInput, OrderOutput
+  point/    PointFacade, PointInput, PointOutput
 
 domain/
   brand/    Brand, BrandRepository, BrandService, BrandCommand, BrandResult
   product/  Product, ProductRepository, ProductService, ProductCommand, ProductResult
   like/     Like, LikeRepository, LikeService, LikeCommand, LikeResult
+  coupon/   Coupon, CouponRepository, CouponService, CouponCommand, CouponResult
   order/    Order, OrderItem, OrderRepository, OrderService, OrderCommand, OrderResult
             ExternalOrderClient (interface)
+  point/    Point, PointHistory, PointRepository, PointService, PointCommand, PointResult
 
 infrastructure/
   brand/    BrandJpaRepository, BrandRepositoryImpl
   product/  ProductJpaRepository, ProductRepositoryImpl
   like/     LikeJpaRepository, LikeRepositoryImpl
+  coupon/   CouponJpaRepository, CouponRepositoryImpl
   order/    OrderJpaRepository, OrderItemJpaRepository, OrderRepositoryImpl
             ExternalOrderClientImpl (Mock)
+  point/    PointJpaRepository, PointHistoryJpaRepository, PointRepositoryImpl
 ```
