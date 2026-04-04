@@ -88,6 +88,20 @@ class PointTest {
                     .isEqualTo(ErrorType.BAD_REQUEST);
         }
 
+        @DisplayName("0 이하의 정수로 포인트를 충전 시, 400 에러가 발생한다.")
+        @ParameterizedTest
+        @ValueSource(longs = {0L, -1L, -100L, Long.MIN_VALUE})
+        void throwsException_whenChargeAmountIsZeroOrLess(Long amount) {
+            // given
+            Point point = new Point(1L, 1000L);
+
+            // when & then
+            assertThatThrownBy(() -> point.charge(amount))
+                    .isInstanceOf(CoreException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.BAD_REQUEST);
+        }
+
         @DisplayName("포인트 충전 시 잔액이 Long.MAX_VALUE를 초과하는 경우, 400 에러를 발생한다")
         @Test
         void throwsException_whenChargeAmountIsGreaterThanMax() {
