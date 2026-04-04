@@ -1,6 +1,7 @@
 package com.loopers.domain.like;
 
 import com.loopers.domain.product.Product;
+import com.loopers.domain.product.ProductCacheRepository;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -32,6 +33,9 @@ class LikeServiceTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private ProductCacheRepository productCacheRepository;
 
     @DisplayName("좋아요 추가 시")
     @Nested

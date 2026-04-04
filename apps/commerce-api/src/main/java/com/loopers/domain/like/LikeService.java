@@ -1,6 +1,7 @@
 package com.loopers.domain.like;
 
 import com.loopers.domain.product.Product;
+import com.loopers.domain.product.ProductCacheRepository;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -16,6 +17,7 @@ public class LikeService {
 
     private final LikeRepository likeRepository;
     private final ProductRepository productRepository;
+    private final ProductCacheRepository productCacheRepository;
 
     @Transactional
     public LikeResult.Toggle addLike(LikeCommand.Toggle command) {
@@ -29,6 +31,7 @@ public class LikeService {
         likeRepository.save(new Like(command.userId(), command.productId()));
         product.increaseLikeCount();
         productRepository.save(product);
+        productCacheRepository.evictDetail(product.getId());
 
         return new LikeResult.Toggle(product.getId(), product.getLikeCount());
     }
@@ -45,6 +48,7 @@ public class LikeService {
         likeRepository.deleteByUserIdAndProductId(command.userId(), command.productId());
         product.decreaseLikeCount();
         productRepository.save(product);
+        productCacheRepository.evictDetail(product.getId());
 
         return new LikeResult.Toggle(product.getId(), product.getLikeCount());
     }
