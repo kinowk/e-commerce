@@ -45,7 +45,7 @@ public class ProductService {
                     List<Long> brandIds = products.stream()
                             .map(Product::getBrandId)
                             .distinct()
-                            .collect(Collectors.toList());
+                            .toList();
                     Map<Long, Brand> brandMap = brandRepository.findAllByIdIn(brandIds)
                             .stream()
                             .collect(Collectors.toMap(Brand::getId, b -> b));
@@ -56,7 +56,7 @@ public class ProductService {
                 });
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Product getProductForOrder(Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));

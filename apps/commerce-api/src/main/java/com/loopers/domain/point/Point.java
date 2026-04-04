@@ -37,8 +37,8 @@ public class Point extends BaseTimeEntity {
         this.balance = balance;
     }
 
-    private void validateBalance(Long balance) {
-        if (balance == null || balance < 0) {
+    private void validateBalance(Long initialBalance) {
+        if (initialBalance == null || initialBalance < 0) {
             throw new CoreException(ErrorType.BAD_REQUEST, "잔액은 0 이상이어야 합니다.");
         }
     }

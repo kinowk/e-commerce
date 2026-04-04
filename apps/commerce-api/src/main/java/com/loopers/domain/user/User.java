@@ -1,6 +1,5 @@
 package com.loopers.domain.user;
 
-import com.loopers.domain.BaseEntity;
 import com.loopers.domain.BaseTimeEntity;
 import com.loopers.domain.user.attribute.Gender;
 import com.loopers.support.error.CoreException;
