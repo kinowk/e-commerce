@@ -4,14 +4,12 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import org.springframework.retry.annotation.EnableRetry;
 
 import java.util.TimeZone;
 
-@EnableRetry
 @ConfigurationPropertiesScan
 @SpringBootApplication
-public class CommerceApiApplication {
+public class CommerceBatchApplication {
 
     @PostConstruct
     public void started() {
@@ -20,6 +18,7 @@ public class CommerceApiApplication {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(CommerceApiApplication.class, args);
+        int exitCode = SpringApplication.exit(SpringApplication.run(CommerceBatchApplication.class, args));
+        System.exit(exitCode);
     }
 }
