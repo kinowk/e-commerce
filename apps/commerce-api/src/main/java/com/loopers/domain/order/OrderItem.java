@@ -16,12 +16,13 @@ public class OrderItem extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_item_id")
     private Long id;
 
-    @Column(name = "order_id", nullable = false)
+    @Column(name = "ref_order_id", nullable = false)
     private Long orderId;
 
-    @Column(name = "product_id", nullable = false)
+    @Column(name = "ref_product_id", nullable = false)
     private Long productId;
 
     @Column(name = "quantity", nullable = false)

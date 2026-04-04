@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PointInput {
 
-    public record Charge(String loginId, Long amount) {
+    public record Charge(Long userId, Long amount) {
         public PointCommand.Charge toCommand() {
-            return new PointCommand.Charge(loginId, amount);
+            return new PointCommand.Charge(userId, amount);
         }
     }
 

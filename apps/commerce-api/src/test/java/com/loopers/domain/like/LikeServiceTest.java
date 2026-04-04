@@ -17,7 +17,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -42,8 +41,8 @@ class LikeServiceTest {
         @Test
         void throwsException_whenProductNotFound() {
             // arrange
-            LikeCommand.Toggle command = new LikeCommand.Toggle("user1", 1L);
-            given(productRepository.findById(anyLong())).willReturn(Optional.empty());
+            LikeCommand.Toggle command = new LikeCommand.Toggle(1L, 1L);
+            given(productRepository.findByIdForUpdate(anyLong())).willReturn(Optional.empty());
 
             // act & assert
             assertThatThrownBy(() -> likeService.addLike(command))
@@ -56,12 +55,12 @@ class LikeServiceTest {
         @Test
         void returnsCurrentState_whenAlreadyLiked() {
             // arrange
-            LikeCommand.Toggle command = new LikeCommand.Toggle("user1", 1L);
+            LikeCommand.Toggle command = new LikeCommand.Toggle(1L, 1L);
             Product product = new Product(1L, "상품명", "설명", 1000L, 10L);
             product.increaseLikeCount();
 
-            given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
-            given(likeRepository.existsByUserLoginIdAndProductId(anyString(), anyLong())).willReturn(true);
+            given(productRepository.findByIdForUpdate(anyLong())).willReturn(Optional.of(product));
+            given(likeRepository.existsByUserIdAndProductId(anyLong(), anyLong())).willReturn(true);
 
             // act
             LikeResult.Toggle result = likeService.addLike(command);
@@ -76,11 +75,11 @@ class LikeServiceTest {
         @Test
         void savesLikeAndIncreases_whenNotYetLiked() {
             // arrange
-            LikeCommand.Toggle command = new LikeCommand.Toggle("user1", 1L);
+            LikeCommand.Toggle command = new LikeCommand.Toggle(1L, 1L);
             Product product = new Product(1L, "상품명", "설명", 1000L, 10L);
 
-            given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
-            given(likeRepository.existsByUserLoginIdAndProductId(anyString(), anyLong())).willReturn(false);
+            given(productRepository.findByIdForUpdate(anyLong())).willReturn(Optional.of(product));
+            given(likeRepository.existsByUserIdAndProductId(anyLong(), anyLong())).willReturn(false);
             given(likeRepository.save(any(Like.class))).willAnswer(inv -> inv.getArgument(0));
             given(productRepository.save(any(Product.class))).willAnswer(inv -> inv.getArgument(0));
 
@@ -102,8 +101,8 @@ class LikeServiceTest {
         @Test
         void throwsException_whenProductNotFound() {
             // arrange
-            LikeCommand.Toggle command = new LikeCommand.Toggle("user1", 1L);
-            given(productRepository.findById(anyLong())).willReturn(Optional.empty());
+            LikeCommand.Toggle command = new LikeCommand.Toggle(1L, 1L);
+            given(productRepository.findByIdForUpdate(anyLong())).willReturn(Optional.empty());
 
             // act & assert
             assertThatThrownBy(() -> likeService.removeLike(command))
@@ -116,18 +115,18 @@ class LikeServiceTest {
         @Test
         void returnsCurrentState_whenNotLiked() {
             // arrange
-            LikeCommand.Toggle command = new LikeCommand.Toggle("user1", 1L);
+            LikeCommand.Toggle command = new LikeCommand.Toggle(1L, 1L);
             Product product = new Product(1L, "상품명", "설명", 1000L, 10L);
 
-            given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
-            given(likeRepository.existsByUserLoginIdAndProductId(anyString(), anyLong())).willReturn(false);
+            given(productRepository.findByIdForUpdate(anyLong())).willReturn(Optional.of(product));
+            given(likeRepository.existsByUserIdAndProductId(anyLong(), anyLong())).willReturn(false);
 
             // act
             LikeResult.Toggle result = likeService.removeLike(command);
 
             // assert
             assertThat(result.likeCount()).isEqualTo(0L);
-            verify(likeRepository, never()).deleteByUserLoginIdAndProductId(anyString(), anyLong());
+            verify(likeRepository, never()).deleteByUserIdAndProductId(anyLong(), anyLong());
             verify(productRepository, never()).save(any(Product.class));
         }
 
@@ -135,12 +134,12 @@ class LikeServiceTest {
         @Test
         void deletesLikeAndDecreases_whenLiked() {
             // arrange
-            LikeCommand.Toggle command = new LikeCommand.Toggle("user1", 1L);
+            LikeCommand.Toggle command = new LikeCommand.Toggle(1L, 1L);
             Product product = new Product(1L, "상품명", "설명", 1000L, 10L);
             product.increaseLikeCount();
 
-            given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
-            given(likeRepository.existsByUserLoginIdAndProductId(anyString(), anyLong())).willReturn(true);
+            given(productRepository.findByIdForUpdate(anyLong())).willReturn(Optional.of(product));
+            given(likeRepository.existsByUserIdAndProductId(anyLong(), anyLong())).willReturn(true);
             given(productRepository.save(any(Product.class))).willAnswer(inv -> inv.getArgument(0));
 
             // act
@@ -148,7 +147,7 @@ class LikeServiceTest {
 
             // assert
             assertThat(result.likeCount()).isEqualTo(0L);
-            verify(likeRepository).deleteByUserLoginIdAndProductId(anyString(), anyLong());
+            verify(likeRepository).deleteByUserIdAndProductId(anyLong(), anyLong());
             verify(productRepository).save(any(Product.class));
         }
     }

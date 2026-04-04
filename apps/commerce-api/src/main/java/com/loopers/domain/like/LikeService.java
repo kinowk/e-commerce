@@ -19,14 +19,14 @@ public class LikeService {
 
     @Transactional
     public LikeResult.Toggle addLike(LikeCommand.Toggle command) {
-        Product product = productRepository.findById(command.productId())
+        Product product = productRepository.findByIdForUpdate(command.productId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
 
-        if (likeRepository.existsByUserLoginIdAndProductId(command.userLoginId(), command.productId())) {
+        if (likeRepository.existsByUserIdAndProductId(command.userId(), command.productId())) {
             return new LikeResult.Toggle(product.getId(), product.getLikeCount());
         }
 
-        likeRepository.save(new Like(command.userLoginId(), command.productId()));
+        likeRepository.save(new Like(command.userId(), command.productId()));
         product.increaseLikeCount();
         productRepository.save(product);
 
@@ -35,14 +35,14 @@ public class LikeService {
 
     @Transactional
     public LikeResult.Toggle removeLike(LikeCommand.Toggle command) {
-        Product product = productRepository.findById(command.productId())
+        Product product = productRepository.findByIdForUpdate(command.productId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
 
-        if (!likeRepository.existsByUserLoginIdAndProductId(command.userLoginId(), command.productId())) {
+        if (!likeRepository.existsByUserIdAndProductId(command.userId(), command.productId())) {
             return new LikeResult.Toggle(product.getId(), product.getLikeCount());
         }
 
-        likeRepository.deleteByUserLoginIdAndProductId(command.userLoginId(), command.productId());
+        likeRepository.deleteByUserIdAndProductId(command.userId(), command.productId());
         product.decreaseLikeCount();
         productRepository.save(product);
 
@@ -50,8 +50,8 @@ public class LikeService {
     }
 
     @Transactional(readOnly = true)
-    public LikeResult.LikedProductIds getLikedProductIds(String userLoginId) {
-        List<Long> productIds = likeRepository.findProductIdsByUserLoginId(userLoginId);
+    public LikeResult.LikedProductIds getLikedProductIds(Long userId) {
+        List<Long> productIds = likeRepository.findProductIdsByUserId(userId);
         return new LikeResult.LikedProductIds(productIds);
     }
 }

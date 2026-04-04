@@ -1,0 +1,77 @@
+package com.loopers.domain.coupon;
+
+import com.loopers.domain.BaseTimeEntity;
+import com.loopers.domain.coupon.attribute.CouponType;
+import com.loopers.support.error.CoreException;
+import com.loopers.support.error.ErrorType;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "coupons")
+public class Coupon extends BaseTimeEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "coupon_id")
+    private Long id;
+
+    @Column(name = "ref_user_id", nullable = false)
+    private Long userId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private CouponType type;
+
+    @Column(name = "discount_value", nullable = false)
+    private Long discountValue;
+
+    @Column(name = "used_at")
+    private LocalDateTime usedAt;
+
+    public Coupon(Long userId, CouponType type, Long discountValue) {
+        if (userId == null) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "사용자 ID가 유효하지 않습니다.");
+        }
+        if (type == null) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "쿠폰 타입은 필수입니다.");
+        }
+        if (discountValue == null || discountValue <= 0) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "할인 값은 0보다 커야 합니다.");
+        }
+        if (type == CouponType.PERCENTAGE && discountValue > 100) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "정률 할인은 100% 이하여야 합니다.");
+        }
+        this.userId = userId;
+        this.type = type;
+        this.discountValue = discountValue;
+    }
+
+    public boolean isUsed() {
+        return usedAt != null;
+    }
+
+    public boolean isOwnedBy(Long userId) {
+        return this.userId.equals(userId);
+    }
+
+    public void use() {
+        if (isUsed()) {
+            throw new CoreException(ErrorType.CONFLICT, "이미 사용된 쿠폰입니다.");
+        }
+        this.usedAt = LocalDateTime.now();
+    }
+
+    public long calculateDiscount(long totalAmount) {
+        return switch (type) {
+            case FIXED_AMOUNT -> Math.min(discountValue, totalAmount);
+            case PERCENTAGE -> totalAmount * discountValue / 100;
+        };
+    }
+}

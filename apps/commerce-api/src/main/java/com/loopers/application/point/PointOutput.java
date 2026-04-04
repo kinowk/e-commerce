@@ -6,19 +6,19 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PointOutput {
-    public record GetPoint(String loginId, Long balance) {
+    public record GetPoint(Long userId, Long balance) {
         public static GetPoint from(PointResult.GetPoint result) {
             return new GetPoint(
-                    result.loginId(),
+                    result.userId(),
                     result.balance()
             );
         }
     }
 
-    public record Charge(String loginId, Long amount, Long balance) {
+    public record Charge(Long userId, Long amount, Long balance) {
         public static Charge from(PointResult.Charge result) {
             return new Charge(
-                    result.loginId(),
+                    result.userId(),
                     result.amount(),
                     result.balance()
             );

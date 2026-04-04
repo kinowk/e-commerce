@@ -13,17 +13,17 @@ public interface OrderV1ApiSpec {
             summary = "주문 생성",
             description = "상품을 주문합니다."
     )
-    ApiResponse<OrderResponse.Create> createOrder(String userLoginId, OrderRequest.Create request);
+    ApiResponse<OrderResponse.Create> createOrder(Long userId, OrderRequest.Create request);
 
     @Operation(
             summary = "주문 목록 조회",
             description = "사용자의 주문 목록을 조회합니다."
     )
-    ApiResponse<List<OrderResponse.Summary>> getOrders(String userLoginId);
+    ApiResponse<List<OrderResponse.Summary>> getOrders(Long userId);
 
     @Operation(
             summary = "주문 상세 조회",
             description = "주문 ID로 주문 상세 정보를 조회합니다."
     )
-    ApiResponse<OrderResponse.Detail> getOrder(String userLoginId, Long orderId);
+    ApiResponse<OrderResponse.Detail> getOrder(Long userId, Long orderId);
 }

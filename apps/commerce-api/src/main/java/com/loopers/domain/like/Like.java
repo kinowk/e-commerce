@@ -11,22 +11,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         name = "likes",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_login_id", "product_id"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"ref_user_id", "ref_product_id"})
 )
 public class Like extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "like_id")
     private Long id;
 
-    @Column(name = "user_login_id", nullable = false)
-    private String userLoginId;
+    @Column(name = "ref_user_id", nullable = false)
+    private Long userId;
 
-    @Column(name = "product_id", nullable = false)
+    @Column(name = "ref_product_id", nullable = false)
     private Long productId;
 
-    public Like(String userLoginId, Long productId) {
-        this.userLoginId = userLoginId;
+    public Like(Long userId, Long productId) {
+        this.userId = userId;
         this.productId = productId;
     }
 }

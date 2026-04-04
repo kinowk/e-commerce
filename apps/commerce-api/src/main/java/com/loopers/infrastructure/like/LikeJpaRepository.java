@@ -8,9 +8,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface LikeJpaRepository extends JpaRepository<Like, Long> {
-    boolean existsByUserLoginIdAndProductId(String userLoginId, Long productId);
-    void deleteByUserLoginIdAndProductId(String userLoginId, Long productId);
+    boolean existsByUserIdAndProductId(Long userId, Long productId);
+    void deleteByUserIdAndProductId(Long userId, Long productId);
 
-    @Query("SELECT l.productId FROM Like l WHERE l.userLoginId = :userLoginId")
-    List<Long> findProductIdsByUserLoginId(@Param("userLoginId") String userLoginId);
+    @Query("SELECT l.productId FROM Like l WHERE l.userId = :userId")
+    List<Long> findProductIdsByUserId(@Param("userId") Long userId);
 }

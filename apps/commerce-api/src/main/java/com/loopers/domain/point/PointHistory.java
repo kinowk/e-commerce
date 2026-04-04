@@ -18,6 +18,7 @@ public class PointHistory extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "point_history_id")
     private Long id;
 
     @Column(name = "ref_point_id", nullable = false)

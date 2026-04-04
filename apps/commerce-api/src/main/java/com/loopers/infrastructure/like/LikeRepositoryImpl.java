@@ -14,8 +14,8 @@ public class LikeRepositoryImpl implements LikeRepository {
     private final LikeJpaRepository likeJpaRepository;
 
     @Override
-    public boolean existsByUserLoginIdAndProductId(String userLoginId, Long productId) {
-        return likeJpaRepository.existsByUserLoginIdAndProductId(userLoginId, productId);
+    public boolean existsByUserIdAndProductId(Long userId, Long productId) {
+        return likeJpaRepository.existsByUserIdAndProductId(userId, productId);
     }
 
     @Override
@@ -24,12 +24,12 @@ public class LikeRepositoryImpl implements LikeRepository {
     }
 
     @Override
-    public void deleteByUserLoginIdAndProductId(String userLoginId, Long productId) {
-        likeJpaRepository.deleteByUserLoginIdAndProductId(userLoginId, productId);
+    public void deleteByUserIdAndProductId(Long userId, Long productId) {
+        likeJpaRepository.deleteByUserIdAndProductId(userId, productId);
     }
 
     @Override
-    public List<Long> findProductIdsByUserLoginId(String userLoginId) {
-        return likeJpaRepository.findProductIdsByUserLoginId(userLoginId);
+    public List<Long> findProductIdsByUserId(Long userId) {
+        return likeJpaRepository.findProductIdsByUserId(userId);
     }
 }

@@ -1,6 +1,7 @@
 package com.loopers.domain.point;
 
 import com.loopers.domain.user.UserCommand;
+import com.loopers.domain.user.UserResult;
 import com.loopers.domain.user.UserService;
 import com.loopers.domain.user.attribute.Gender;
 import com.loopers.support.error.CoreException;
@@ -44,13 +45,13 @@ class PointServiceIntegrationTest {
             UserCommand.Join joinCommand = new UserCommand.Join(
                     "testuser", "test123", "password123", "test@example.com", "1990-01-01", Gender.MALE
             );
-            userService.join(joinCommand);
+            UserResult.Join joined = userService.join(joinCommand);
 
             // when
-            PointResult.GetPoint result = pointService.getPoint("test123");
+            PointResult.GetPoint result = pointService.getPoint(joined.id());
 
             // then
-            assertThat(result.loginId()).isEqualTo("test123");
+            assertThat(result.userId()).isEqualTo(joined.id());
             assertThat(result.balance()).isEqualTo(0L);
         }
 
@@ -58,10 +59,10 @@ class PointServiceIntegrationTest {
         @Test
         void throwsException_whenUserNotFound() {
             // given
-            String nonExistLoginId = "nonexist123";
+            Long nonExistUserId = 999999L;
 
             // when & then
-            assertThatThrownBy(() -> pointService.getPoint(nonExistLoginId))
+            assertThatThrownBy(() -> pointService.getPoint(nonExistUserId))
                     .isInstanceOf(CoreException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.NOT_FOUND);
@@ -76,7 +77,7 @@ class PointServiceIntegrationTest {
         @Test
         void throwsException_whenUserNotFound() {
             // given
-            PointCommand.Charge command = new PointCommand.Charge("nonexist123", 1000L);
+            PointCommand.Charge command = new PointCommand.Charge(999999L, 1000L);
 
             // when & then
             assertThatThrownBy(() -> pointService.charge(command))

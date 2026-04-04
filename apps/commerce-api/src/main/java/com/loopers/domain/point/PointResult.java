@@ -1,15 +1,15 @@
 package com.loopers.domain.point;
 
 public class PointResult {
-    public record GetPoint(String loginId, Long balance) {
-        public static GetPoint from(String loginId, Point point) {
+    public record GetPoint(Long userId, Long balance) {
+        public static GetPoint from(Long userId, Point point) {
             return new GetPoint(
-                    loginId,
+                    userId,
                     point.getBalance()
             );
         }
     }
 
-    public record Charge(String loginId, Long amount, Long balance) {
+    public record Charge(Long userId, Long amount, Long balance) {
     }
 }

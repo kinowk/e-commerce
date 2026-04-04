@@ -5,6 +5,7 @@ import com.loopers.infrastructure.point.PointJpaRepository;
 import com.loopers.interfaces.api.ApiHeader;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.interfaces.api.user.UserRequest;
+import com.loopers.interfaces.api.user.UserResponse;
 import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -43,11 +44,16 @@ public class PointV1ApiE2ETest {
         databaseCleanUp.truncateAllTables();
     }
 
-    private void joinUser(String loginId) {
+    private Long joinUser(String loginId) {
         UserRequest.Join request = new UserRequest.Join(
                 "testuser", loginId, "password123", loginId + "@gmail.com", "1990-01-01", Gender.MALE
         );
-        testRestTemplate.postForEntity(ENDPOINT_JOIN_USER, request, Void.class);
+        ParameterizedTypeReference<ApiResponse<UserResponse.Join>> responseType = new ParameterizedTypeReference<>() {};
+        ResponseEntity<ApiResponse<UserResponse.Join>> response = testRestTemplate.exchange(
+                ENDPOINT_JOIN_USER, HttpMethod.POST,
+                new HttpEntity<>(request), responseType
+        );
+        return response.getBody().data().id();
     }
 
     @DisplayName("GET /api/v1/points")
@@ -58,10 +64,10 @@ public class PointV1ApiE2ETest {
         @Test
         void returnsPoint_whenGetPointSucceeds() {
             // arrange
-            joinUser("test123");
+            Long userId = joinUser("test123");
 
             HttpHeaders headers = new HttpHeaders();
-            headers.set(ApiHeader.X_USER_ID, "test123");
+            headers.set(ApiHeader.X_USER_ID, String.valueOf(userId));
 
             // act
             ParameterizedTypeReference<ApiResponse<PointResponse.GetPoint>> responseType = new ParameterizedTypeReference<>() {};
@@ -73,7 +79,7 @@ public class PointV1ApiE2ETest {
             // assert
             assertAll(
                     () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
-                    () -> assertThat(response.getBody().data().loginId()).isEqualTo("test123"),
+                    () -> assertThat(response.getBody().data().userId()).isEqualTo(userId),
                     () -> assertThat(response.getBody().data().balance()).isEqualTo(0L)
             );
         }
@@ -101,10 +107,10 @@ public class PointV1ApiE2ETest {
         @Test
         void returnsNewBalance_whenChargeSucceeds() {
             // arrange
-            joinUser("test123");
+            Long userId = joinUser("test123");
 
             HttpHeaders headers = new HttpHeaders();
-            headers.set(ApiHeader.X_USER_ID, "test123");
+            headers.set(ApiHeader.X_USER_ID, String.valueOf(userId));
             PointRequest.Charge chargeRequest = new PointRequest.Charge(1000L);
 
             // act
@@ -117,7 +123,7 @@ public class PointV1ApiE2ETest {
             // assert
             assertAll(
                     () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
-                    () -> assertThat(response.getBody().data().loginId()).isEqualTo("test123"),
+                    () -> assertThat(response.getBody().data().userId()).isEqualTo(userId),
                     () -> assertThat(response.getBody().data().amount()).isEqualTo(1000L),
                     () -> assertThat(response.getBody().data().balance()).isEqualTo(1000L)
             );
@@ -128,7 +134,7 @@ public class PointV1ApiE2ETest {
         void returns404_whenUserNotFound() {
             // arrange
             HttpHeaders headers = new HttpHeaders();
-            headers.set(ApiHeader.X_USER_ID, "nonexist123");
+            headers.set(ApiHeader.X_USER_ID, "999999");
             PointRequest.Charge chargeRequest = new PointRequest.Charge(1000L);
 
             // act

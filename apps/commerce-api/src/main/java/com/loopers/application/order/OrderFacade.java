@@ -16,14 +16,14 @@ public class OrderFacade {
         return OrderOutput.Create.from(orderService.createOrder(input.toCommand()));
     }
 
-    public List<OrderOutput.Summary> getOrders(String userLoginId) {
-        return orderService.getOrders(userLoginId)
+    public List<OrderOutput.Summary> getOrders(Long userId) {
+        return orderService.getOrders(userId)
                 .stream()
                 .map(OrderOutput.Summary::from)
                 .toList();
     }
 
-    public OrderOutput.Detail getOrder(String userLoginId, Long orderId) {
-        return OrderOutput.Detail.from(orderService.getOrder(userLoginId, orderId));
+    public OrderOutput.Detail getOrder(Long userId, Long orderId) {
+        return OrderOutput.Detail.from(orderService.getOrder(userId, orderId));
     }
 }

@@ -44,6 +44,13 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public Long getUserId(String loginId) {
+        return userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자를 찾을 수 없습니다."))
+                .getId();
+    }
+
+    @Transactional(readOnly = true)
     public UserResult.GetUser getUser(String loginId) {
         return userRepository.findByLoginId(loginId)
                 .map(UserResult.GetUser::from)
