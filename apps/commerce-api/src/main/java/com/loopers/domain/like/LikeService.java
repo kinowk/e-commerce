@@ -19,7 +19,7 @@ public class LikeService {
 
     @Transactional
     public LikeResult.Toggle addLike(LikeCommand.Toggle command) {
-        Product product = productRepository.findById(command.productId())
+        Product product = productRepository.findByIdForUpdate(command.productId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
 
         if (likeRepository.existsByUserLoginIdAndProductId(command.userLoginId(), command.productId())) {
@@ -35,7 +35,7 @@ public class LikeService {
 
     @Transactional
     public LikeResult.Toggle removeLike(LikeCommand.Toggle command) {
-        Product product = productRepository.findById(command.productId())
+        Product product = productRepository.findByIdForUpdate(command.productId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
 
         if (!likeRepository.existsByUserLoginIdAndProductId(command.userLoginId(), command.productId())) {
