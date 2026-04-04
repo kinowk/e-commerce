@@ -1,0 +1,1 @@
+- [Project Architecture](project_architecture.md) — Hexagonal/clean arch Spring Boot e-commerce API; key patterns and recurring issues found in first review
