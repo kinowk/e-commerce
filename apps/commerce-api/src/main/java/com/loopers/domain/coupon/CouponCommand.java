@@ -6,6 +6,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CouponCommand {
 
-    public record Use(Long couponId, String userLoginId) {
+    public record Use(Long couponId, Long userId) {
     }
 }

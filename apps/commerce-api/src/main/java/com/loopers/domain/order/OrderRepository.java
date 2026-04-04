@@ -7,6 +7,6 @@ public interface OrderRepository {
     Order save(Order order);
     OrderItem saveItem(OrderItem item);
     Optional<Order> findById(Long id);
-    List<Order> findByUserLoginId(String userLoginId);
+    List<Order> findByUserId(Long userId);
     List<OrderItem> findItemsByOrderId(Long orderId);
 }

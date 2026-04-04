@@ -17,19 +17,19 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     @PostMapping
     @Override
     public ApiResponse<OrderResponse.Create> createOrder(
-            @RequestHeader("X-USER-ID") String userLoginId,
+            @RequestHeader("X-USER-ID") Long userId,
             @RequestBody OrderRequest.Create request
     ) {
-        return ApiResponse.success(OrderResponse.Create.from(orderFacade.createOrder(request.toInput(userLoginId))));
+        return ApiResponse.success(OrderResponse.Create.from(orderFacade.createOrder(request.toInput(userId))));
     }
 
     @GetMapping
     @Override
     public ApiResponse<List<OrderResponse.Summary>> getOrders(
-            @RequestHeader("X-USER-ID") String userLoginId
+            @RequestHeader("X-USER-ID") Long userId
     ) {
         return ApiResponse.success(
-                orderFacade.getOrders(userLoginId).stream()
+                orderFacade.getOrders(userId).stream()
                         .map(OrderResponse.Summary::from)
                         .toList()
         );
@@ -38,9 +38,9 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     @GetMapping("/{orderId}")
     @Override
     public ApiResponse<OrderResponse.Detail> getOrder(
-            @RequestHeader("X-USER-ID") String userLoginId,
+            @RequestHeader("X-USER-ID") Long userId,
             @PathVariable Long orderId
     ) {
-        return ApiResponse.success(OrderResponse.Detail.from(orderFacade.getOrder(userLoginId, orderId)));
+        return ApiResponse.success(OrderResponse.Detail.from(orderFacade.getOrder(userId, orderId)));
     }
 }

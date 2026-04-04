@@ -8,6 +8,7 @@ import com.loopers.domain.point.PointService;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.user.UserCommand;
+import com.loopers.domain.user.UserResult;
 import com.loopers.domain.user.UserService;
 import com.loopers.domain.user.attribute.Gender;
 import com.loopers.infrastructure.brand.BrandJpaRepository;
@@ -61,16 +62,18 @@ class OrderServiceConcurrencyIntegrationTest {
         return brandJpaRepository.save(new Brand("테스트브랜드", "설명"));
     }
 
-    private void createUserWithPoint(String loginId, long initialPoint) {
-        userService.join(new UserCommand.Join(
+    private Long createUserWithPoint(String loginId, long initialPoint) {
+        UserResult.Join joined = userService.join(new UserCommand.Join(
                 loginId, loginId, "password123",
                 "test@test.com", "1990-01-01", Gender.MALE
         ));
+        Long userId = joined.id();
         if (initialPoint > 0) {
             com.loopers.domain.point.PointCommand.Charge charge =
-                    new com.loopers.domain.point.PointCommand.Charge(loginId, initialPoint);
+                    new com.loopers.domain.point.PointCommand.Charge(userId, initialPoint);
             pointService.charge(charge);
         }
+        return userId;
     }
 
     @DisplayName("재고 동시성 테스트")
@@ -85,8 +88,9 @@ class OrderServiceConcurrencyIntegrationTest {
             Product product = productRepository.save(new Product(brand.getId(), "테스트상품", "설명", 1000L, 10L));
 
             int threadCount = 10;
+            Long[] userIds = new Long[threadCount];
             for (int i = 0; i < threadCount; i++) {
-                createUserWithPoint("user" + i, 100000L);
+                userIds[i] = createUserWithPoint("user" + i, 100000L);
             }
 
             ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -96,13 +100,13 @@ class OrderServiceConcurrencyIntegrationTest {
 
             // act
             for (int i = 0; i < threadCount; i++) {
-                final String userLoginId = "user" + i;
+                final Long userId = userIds[i];
                 executor.submit(() -> {
                     try {
                         List<OrderCommand.Create.Item> items = List.of(
                                 new OrderCommand.Create.Item(product.getId(), 1L)
                         );
-                        orderService.createOrder(new OrderCommand.Create(userLoginId, items, null));
+                        orderService.createOrder(new OrderCommand.Create(userId, items, null));
                         successCount.incrementAndGet();
                     } catch (Exception e) {
                         failCount.incrementAndGet();
@@ -135,7 +139,7 @@ class OrderServiceConcurrencyIntegrationTest {
             long pointPerOrder = 1000L;
             long initialPoint = threadCount * pointPerOrder;
 
-            createUserWithPoint("concUser", initialPoint);
+            Long userId = createUserWithPoint("concUser", initialPoint);
 
             List<Product> products = new ArrayList<>();
             for (int i = 0; i < threadCount; i++) {
@@ -155,7 +159,7 @@ class OrderServiceConcurrencyIntegrationTest {
                         List<OrderCommand.Create.Item> items = List.of(
                                 new OrderCommand.Create.Item(product.getId(), 1L)
                         );
-                        orderService.createOrder(new OrderCommand.Create("concUser", items, null));
+                        orderService.createOrder(new OrderCommand.Create(userId, items, null));
                         successCount.incrementAndGet();
                     } catch (Exception e) {
                         failCount.incrementAndGet();
@@ -168,7 +172,7 @@ class OrderServiceConcurrencyIntegrationTest {
             executor.shutdown();
 
             // assert: 모든 주문이 성공하고 포인트가 정확히 차감되어야 함
-            com.loopers.domain.point.PointResult.GetPoint pointResult = pointService.getPoint("concUser");
+            com.loopers.domain.point.PointResult.GetPoint pointResult = pointService.getPoint(userId);
             assertThat(successCount.get()).isEqualTo(threadCount);
             assertThat(pointResult.balance()).isEqualTo(0L);
         }
@@ -186,11 +190,10 @@ class OrderServiceConcurrencyIntegrationTest {
             Product product = productRepository.save(new Product(brand.getId(), "쿠폰상품", "설명", 1000L, 20L));
 
             int threadCount = 10;
-            String couponOwner = "cpUser";
-            createUserWithPoint(couponOwner, 1000000L);
+            Long couponOwnerId = createUserWithPoint("cpUser", 1000000L);
 
             // couponOwner 의 쿠폰 1개 생성
-            Coupon coupon = couponRepository.save(new Coupon(couponOwner, CouponType.FIXED_AMOUNT, 500L));
+            Coupon coupon = couponRepository.save(new Coupon(couponOwnerId, CouponType.FIXED_AMOUNT, 500L));
 
             ExecutorService executor = Executors.newFixedThreadPool(threadCount);
             CountDownLatch latch = new CountDownLatch(threadCount);
@@ -204,7 +207,7 @@ class OrderServiceConcurrencyIntegrationTest {
                         List<OrderCommand.Create.Item> items = List.of(
                                 new OrderCommand.Create.Item(product.getId(), 1L)
                         );
-                        orderService.createOrder(new OrderCommand.Create(couponOwner, items, coupon.getId()));
+                        orderService.createOrder(new OrderCommand.Create(couponOwnerId, items, coupon.getId()));
                         successCount.incrementAndGet();
                     } catch (Exception e) {
                         failCount.incrementAndGet();

@@ -18,8 +18,8 @@ public class PointV1Controller implements PointV1ApiSpec {
 
     @GetMapping
     @Override
-    public ApiResponse<PointResponse.GetPoint> getPoint(@RequestHeader(ApiHeader.X_USER_ID) String loginId) {
-        PointOutput.GetPoint output =  pointFacade.getPoint(loginId);
+    public ApiResponse<PointResponse.GetPoint> getPoint(@RequestHeader(ApiHeader.X_USER_ID) Long userId) {
+        PointOutput.GetPoint output = pointFacade.getPoint(userId);
         PointResponse.GetPoint response = PointResponse.GetPoint.from(output);
         return ApiResponse.success(response);
     }
@@ -27,10 +27,10 @@ public class PointV1Controller implements PointV1ApiSpec {
     @PostMapping("/charge")
     @Override
     public ApiResponse<PointResponse.Charge> charge(
-            @RequestHeader(ApiHeader.X_USER_ID) String loginId,
+            @RequestHeader(ApiHeader.X_USER_ID) Long userId,
             @Valid @RequestBody PointRequest.Charge request
     ) {
-        PointInput.Charge input = new PointInput.Charge(loginId, request.amount());
+        PointInput.Charge input = new PointInput.Charge(userId, request.amount());
         PointOutput.Charge output = pointFacade.charge(input);
         PointResponse.Charge response = PointResponse.Charge.from(output);
         return ApiResponse.success(response);

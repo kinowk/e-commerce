@@ -21,7 +21,7 @@ public class LikeFacade {
         return LikeOutput.Toggle.from(likeService.removeLike(command));
     }
 
-    public LikeOutput.LikedProductIds getLikedProductIds(String userLoginId) {
-        return LikeOutput.LikedProductIds.from(likeService.getLikedProductIds(userLoginId));
+    public LikeOutput.LikedProductIds getLikedProductIds(Long userId) {
+        return LikeOutput.LikedProductIds.from(likeService.getLikedProductIds(userId));
     }
 }

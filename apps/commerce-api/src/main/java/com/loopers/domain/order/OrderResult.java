@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OrderResult {
 
-    public record Create(Long orderId, String userLoginId, Long totalAmount,
+    public record Create(Long orderId, Long userId, Long totalAmount,
                          Long discountAmount, Long finalAmount,
                          OrderStatus status, List<Item> items) {
         public record Item(Long productId, Long quantity, Long unitPrice, Long totalPrice) {
@@ -26,7 +26,7 @@ public class OrderResult {
         public static Create of(Order order, List<OrderItem> items) {
             return new Create(
                     order.getId(),
-                    order.getUserLoginId(),
+                    order.getUserId(),
                     order.getTotalAmount(),
                     order.getDiscountAmount(),
                     order.getFinalAmount(),
@@ -42,12 +42,12 @@ public class OrderResult {
         }
     }
 
-    public record Detail(Long orderId, String userLoginId, Long totalAmount,
+    public record Detail(Long orderId, Long userId, Long totalAmount,
                          OrderStatus status, List<Create.Item> items) {
         public static Detail of(Order order, List<OrderItem> items) {
             return new Detail(
                     order.getId(),
-                    order.getUserLoginId(),
+                    order.getUserId(),
                     order.getTotalAmount(),
                     order.getStatus(),
                     items.stream().map(Create.Item::from).toList()

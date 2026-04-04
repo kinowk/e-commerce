@@ -17,6 +17,7 @@ public class Brand extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "brand_id")
     private Long id;
 
     @Column(name = "name", nullable = false)

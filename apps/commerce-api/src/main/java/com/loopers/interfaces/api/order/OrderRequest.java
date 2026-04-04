@@ -16,9 +16,9 @@ public class OrderRequest {
             }
         }
 
-        public OrderInput.Create toInput(String userLoginId) {
+        public OrderInput.Create toInput(Long userId) {
             return new OrderInput.Create(
-                    userLoginId,
+                    userId,
                     items.stream().map(Item::toInput).toList(),
                     couponId
             );

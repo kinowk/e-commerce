@@ -21,7 +21,7 @@ public class CouponService {
         Coupon coupon = couponRepository.findByIdForUpdate(command.couponId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "쿠폰을 찾을 수 없습니다."));
 
-        if (!coupon.isOwnedBy(command.userLoginId())) {
+        if (!coupon.isOwnedBy(command.userId())) {
             throw new CoreException(ErrorType.BAD_REQUEST, "해당 쿠폰을 사용할 수 없습니다.");
         }
         if (coupon.isUsed()) {

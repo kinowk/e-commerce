@@ -19,10 +19,11 @@ public class Coupon extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "coupon_id")
     private Long id;
 
-    @Column(name = "user_login_id", nullable = false)
-    private String userLoginId;
+    @Column(name = "ref_user_id", nullable = false)
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
@@ -34,8 +35,8 @@ public class Coupon extends BaseTimeEntity {
     @Column(name = "used_at")
     private LocalDateTime usedAt;
 
-    public Coupon(String userLoginId, CouponType type, Long discountValue) {
-        if (userLoginId == null || userLoginId.isBlank()) {
+    public Coupon(Long userId, CouponType type, Long discountValue) {
+        if (userId == null) {
             throw new CoreException(ErrorType.BAD_REQUEST, "사용자 ID가 유효하지 않습니다.");
         }
         if (type == null) {
@@ -47,7 +48,7 @@ public class Coupon extends BaseTimeEntity {
         if (type == CouponType.PERCENTAGE && discountValue > 100) {
             throw new CoreException(ErrorType.BAD_REQUEST, "정률 할인은 100% 이하여야 합니다.");
         }
-        this.userLoginId = userLoginId;
+        this.userId = userId;
         this.type = type;
         this.discountValue = discountValue;
     }
@@ -56,8 +57,8 @@ public class Coupon extends BaseTimeEntity {
         return usedAt != null;
     }
 
-    public boolean isOwnedBy(String userLoginId) {
-        return this.userLoginId.equals(userLoginId);
+    public boolean isOwnedBy(Long userId) {
+        return this.userId.equals(userId);
     }
 
     public void use() {

@@ -16,6 +16,7 @@ public class Point extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "point_id")
     private Long id;
 
     @Column(name = "ref_user_id", nullable = false, unique = true)

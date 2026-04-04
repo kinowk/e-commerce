@@ -4,6 +4,7 @@ import com.loopers.domain.brand.Brand;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.user.UserCommand;
+import com.loopers.domain.user.UserResult;
 import com.loopers.domain.user.UserService;
 import com.loopers.domain.user.attribute.Gender;
 import com.loopers.infrastructure.brand.BrandJpaRepository;
@@ -52,11 +53,13 @@ class LikeServiceConcurrencyIntegrationTest {
         Product product = productRepository.save(new Product(brand.getId(), "좋아요상품", "설명", 1000L, 100L));
 
         int threadCount = 10;
+        Long[] userIds = new Long[threadCount];
         for (int i = 0; i < threadCount; i++) {
-            userService.join(new UserCommand.Join(
+            UserResult.Join joined = userService.join(new UserCommand.Join(
                     "lkUser" + i, "lkUser" + i, "password123",
                     "test@test.com", "1990-01-01", Gender.MALE
             ));
+            userIds[i] = joined.id();
         }
 
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -65,10 +68,10 @@ class LikeServiceConcurrencyIntegrationTest {
 
         // act
         for (int i = 0; i < threadCount; i++) {
-            final String userLoginId = "lkUser" + i;
+            final Long userId = userIds[i];
             executor.submit(() -> {
                 try {
-                    likeService.addLike(new LikeCommand.Toggle(userLoginId, product.getId()));
+                    likeService.addLike(new LikeCommand.Toggle(userId, product.getId()));
                     successCount.incrementAndGet();
                 } catch (Exception e) {
                     // 동시성 이슈로 실패한 경우

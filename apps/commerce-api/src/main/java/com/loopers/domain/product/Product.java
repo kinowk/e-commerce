@@ -18,9 +18,10 @@ public class Product extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_id")
     private Long id;
 
-    @Column(name = "brand_id", nullable = false)
+    @Column(name = "ref_brand_id", nullable = false)
     private Long brandId;
 
     @Column(name = "name", nullable = false)
