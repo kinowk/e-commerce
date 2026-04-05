@@ -48,14 +48,14 @@ class OrderTest {
                     .isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("주문 생성 시 상태가 PAID로 설정된다.")
+        @DisplayName("주문 생성 시 상태가 PENDING으로 설정된다.")
         @Test
-        void setsStatusToPaid_whenOrderIsCreated() {
+        void setsStatusToPending_whenOrderIsCreated() {
             // act
             Order order = new Order(1L, 5000L, 0L, null);
 
             // assert
-            assertThat(order.getStatus()).isEqualTo(OrderStatus.PAID);
+            assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDING);
         }
     }
 

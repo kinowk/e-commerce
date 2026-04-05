@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OrderRequest {
 
-    public record Create(List<Item> items, Long couponId) {
+    public record Create(List<Item> items, Long couponId, String cardType, String cardNo) {
         public record Item(Long productId, Long quantity) {
             public OrderInput.Create.Item toInput() {
                 return new OrderInput.Create.Item(productId, quantity);
@@ -20,7 +20,9 @@ public class OrderRequest {
             return new OrderInput.Create(
                     userId,
                     items.stream().map(Item::toInput).toList(),
-                    couponId
+                    couponId,
+                    cardType,
+                    cardNo
             );
         }
     }
