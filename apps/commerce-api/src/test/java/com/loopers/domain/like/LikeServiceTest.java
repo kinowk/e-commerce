@@ -1,7 +1,7 @@
 package com.loopers.domain.like;
 
+import com.loopers.domain.like.event.LikeToggledEvent;
 import com.loopers.domain.product.Product;
-import com.loopers.domain.product.ProductCacheRepository;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 
@@ -35,7 +36,7 @@ class LikeServiceTest {
     private ProductRepository productRepository;
 
     @Mock
-    private ProductCacheRepository productCacheRepository;
+    private ApplicationEventPublisher eventPublisher;
 
     @DisplayName("좋아요 추가 시")
     @Nested
@@ -46,7 +47,7 @@ class LikeServiceTest {
         void throwsException_whenProductNotFound() {
             // arrange
             LikeCommand.Toggle command = new LikeCommand.Toggle(1L, 1L);
-            given(productRepository.findByIdForUpdate(anyLong())).willReturn(Optional.empty());
+            given(productRepository.findById(anyLong())).willReturn(Optional.empty());
 
             // act & assert
             assertThatThrownBy(() -> likeService.addLike(command))
@@ -63,7 +64,7 @@ class LikeServiceTest {
             Product product = new Product(1L, "상품명", "설명", 1000L, 10L);
             product.increaseLikeCount();
 
-            given(productRepository.findByIdForUpdate(anyLong())).willReturn(Optional.of(product));
+            given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
             given(likeRepository.existsByUserIdAndProductId(anyLong(), anyLong())).willReturn(true);
 
             // act
@@ -72,28 +73,27 @@ class LikeServiceTest {
             // assert
             assertThat(result.likeCount()).isEqualTo(1L);
             verify(likeRepository, never()).save(any(Like.class));
-            verify(productRepository, never()).save(any(Product.class));
+            verify(eventPublisher, never()).publishEvent(any(LikeToggledEvent.class));
         }
 
-        @DisplayName("좋아요하지 않은 경우, 좋아요가 저장되고 좋아요 수가 증가한다.")
+        @DisplayName("좋아요하지 않은 경우, 좋아요가 저장되고 집계 이벤트가 발행된다.")
         @Test
-        void savesLikeAndIncreases_whenNotYetLiked() {
+        void savesLikeAndPublishesEvent_whenNotYetLiked() {
             // arrange
             LikeCommand.Toggle command = new LikeCommand.Toggle(1L, 1L);
             Product product = new Product(1L, "상품명", "설명", 1000L, 10L);
 
-            given(productRepository.findByIdForUpdate(anyLong())).willReturn(Optional.of(product));
+            given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
             given(likeRepository.existsByUserIdAndProductId(anyLong(), anyLong())).willReturn(false);
             given(likeRepository.save(any(Like.class))).willAnswer(inv -> inv.getArgument(0));
-            given(productRepository.save(any(Product.class))).willAnswer(inv -> inv.getArgument(0));
 
             // act
             LikeResult.Toggle result = likeService.addLike(command);
 
-            // assert
-            assertThat(result.likeCount()).isEqualTo(1L);
+            // assert: 좋아요 저장 + 이벤트 발행 (집계는 eventual consistency)
+            assertThat(result.likeCount()).isEqualTo(0L); // 집계 전 현재 상태 반환
             verify(likeRepository).save(any(Like.class));
-            verify(productRepository).save(any(Product.class));
+            verify(eventPublisher).publishEvent(any(LikeToggledEvent.class));
         }
     }
 
@@ -106,7 +106,7 @@ class LikeServiceTest {
         void throwsException_whenProductNotFound() {
             // arrange
             LikeCommand.Toggle command = new LikeCommand.Toggle(1L, 1L);
-            given(productRepository.findByIdForUpdate(anyLong())).willReturn(Optional.empty());
+            given(productRepository.findById(anyLong())).willReturn(Optional.empty());
 
             // act & assert
             assertThatThrownBy(() -> likeService.removeLike(command))
@@ -122,7 +122,7 @@ class LikeServiceTest {
             LikeCommand.Toggle command = new LikeCommand.Toggle(1L, 1L);
             Product product = new Product(1L, "상품명", "설명", 1000L, 10L);
 
-            given(productRepository.findByIdForUpdate(anyLong())).willReturn(Optional.of(product));
+            given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
             given(likeRepository.existsByUserIdAndProductId(anyLong(), anyLong())).willReturn(false);
 
             // act
@@ -131,28 +131,27 @@ class LikeServiceTest {
             // assert
             assertThat(result.likeCount()).isEqualTo(0L);
             verify(likeRepository, never()).deleteByUserIdAndProductId(anyLong(), anyLong());
-            verify(productRepository, never()).save(any(Product.class));
+            verify(eventPublisher, never()).publishEvent(any(LikeToggledEvent.class));
         }
 
-        @DisplayName("좋아요한 경우, 좋아요가 삭제되고 좋아요 수가 감소한다.")
+        @DisplayName("좋아요한 경우, 좋아요가 삭제되고 집계 이벤트가 발행된다.")
         @Test
-        void deletesLikeAndDecreases_whenLiked() {
+        void deletesLikeAndPublishesEvent_whenLiked() {
             // arrange
             LikeCommand.Toggle command = new LikeCommand.Toggle(1L, 1L);
             Product product = new Product(1L, "상품명", "설명", 1000L, 10L);
             product.increaseLikeCount();
 
-            given(productRepository.findByIdForUpdate(anyLong())).willReturn(Optional.of(product));
+            given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
             given(likeRepository.existsByUserIdAndProductId(anyLong(), anyLong())).willReturn(true);
-            given(productRepository.save(any(Product.class))).willAnswer(inv -> inv.getArgument(0));
 
             // act
             LikeResult.Toggle result = likeService.removeLike(command);
 
-            // assert
-            assertThat(result.likeCount()).isEqualTo(0L);
+            // assert: 좋아요 삭제 + 이벤트 발행 (집계는 eventual consistency)
+            assertThat(result.likeCount()).isEqualTo(1L); // 집계 전 현재 상태 반환
             verify(likeRepository).deleteByUserIdAndProductId(anyLong(), anyLong());
-            verify(productRepository).save(any(Product.class));
+            verify(eventPublisher).publishEvent(any(LikeToggledEvent.class));
         }
     }
 }

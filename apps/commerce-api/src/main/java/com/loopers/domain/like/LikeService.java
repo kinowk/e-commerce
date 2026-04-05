@@ -1,11 +1,12 @@
 package com.loopers.domain.like;
 
+import com.loopers.domain.like.event.LikeToggledEvent;
 import com.loopers.domain.product.Product;
-import com.loopers.domain.product.ProductCacheRepository;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +19,14 @@ public class LikeService {
 
     private final LikeRepository likeRepository;
     private final ProductRepository productRepository;
-    private final ProductCacheRepository productCacheRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
+    /**
+     * 좋아요 저장 (핵심), 집계는 LikeEventHandler에서 eventual consistency로 처리
+     */
     @Transactional(noRollbackFor = DataIntegrityViolationException.class)
     public LikeResult.Toggle addLike(LikeCommand.Toggle command) {
-        Product product = productRepository.findByIdForUpdate(command.productId())
+        Product product = productRepository.findById(command.productId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
 
         if (likeRepository.existsByUserIdAndProductId(command.userId(), command.productId())) {
@@ -35,16 +39,16 @@ public class LikeService {
             return new LikeResult.Toggle(product.getId(), product.getLikeCount());
         }
 
-        product.increaseLikeCount();
-        productRepository.save(product);
-        productCacheRepository.evictDetail(product.getId());
-
+        eventPublisher.publishEvent(new LikeToggledEvent(command.userId(), command.productId(), true));
         return new LikeResult.Toggle(product.getId(), product.getLikeCount());
     }
 
+    /**
+     * 좋아요 취소 (핵심), 집계는 LikeEventHandler에서 eventual consistency로 처리
+     */
     @Transactional
     public LikeResult.Toggle removeLike(LikeCommand.Toggle command) {
-        Product product = productRepository.findByIdForUpdate(command.productId())
+        Product product = productRepository.findById(command.productId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
 
         if (!likeRepository.existsByUserIdAndProductId(command.userId(), command.productId())) {
@@ -52,10 +56,7 @@ public class LikeService {
         }
 
         likeRepository.deleteByUserIdAndProductId(command.userId(), command.productId());
-        product.decreaseLikeCount();
-        productRepository.save(product);
-        productCacheRepository.evictDetail(product.getId());
-
+        eventPublisher.publishEvent(new LikeToggledEvent(command.userId(), command.productId(), false));
         return new LikeResult.Toggle(product.getId(), product.getLikeCount());
     }
 

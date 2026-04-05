@@ -1,11 +1,11 @@
 package com.loopers.application.order;
 
 import com.loopers.domain.order.OrderService;
-import com.loopers.domain.order.attribute.OrderStatus;
-import com.loopers.domain.payment.PaymentCommand;
-import com.loopers.domain.payment.PaymentService;
+import com.loopers.domain.order.event.OrderCreatedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,19 +14,15 @@ import java.util.List;
 public class OrderFacade {
 
     private final OrderService orderService;
-    private final PaymentService paymentService;
+    private final ApplicationEventPublisher eventPublisher;
 
+    @Transactional
     public OrderOutput.Create createOrder(OrderInput.Create input) {
         OrderOutput.Create result = OrderOutput.Create.from(orderService.createOrder(input.toCommand()));
-
-        if (result.finalAmount() > 0) {
-            paymentService.requestPayment(new PaymentCommand.Request(
-                    result.orderId(), input.cardType(), input.cardNo(), result.finalAmount()
-            ));
-        } else {
-            orderService.updateOrderStatus(result.orderId(), OrderStatus.PAID);
-        }
-
+        eventPublisher.publishEvent(new OrderCreatedEvent(
+                result.orderId(), result.userId(), input.couponId(),
+                input.cardType(), input.cardNo(), result.finalAmount()
+        ));
         return result;
     }
 
