@@ -50,10 +50,14 @@ public class Order extends BaseTimeEntity {
         this.totalAmount = totalAmount;
         this.discountAmount = discountAmount != null ? discountAmount : 0L;
         this.couponId = couponId;
-        this.status = OrderStatus.PAID;
+        this.status = OrderStatus.PENDING;
     }
 
     public Long getFinalAmount() {
         return totalAmount - discountAmount;
+    }
+
+    public void updateStatus(OrderStatus newStatus) {
+        this.status = newStatus;
     }
 }

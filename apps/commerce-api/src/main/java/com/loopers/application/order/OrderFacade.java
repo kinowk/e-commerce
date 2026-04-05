@@ -1,7 +1,8 @@
 package com.loopers.application.order;
 
-import com.loopers.domain.order.ExternalOrderClient;
 import com.loopers.domain.order.OrderService;
+import com.loopers.domain.payment.PaymentCommand;
+import com.loopers.domain.payment.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,11 +13,13 @@ import java.util.List;
 public class OrderFacade {
 
     private final OrderService orderService;
-    private final ExternalOrderClient externalOrderClient;
+    private final PaymentService paymentService;
 
     public OrderOutput.Create createOrder(OrderInput.Create input) {
         OrderOutput.Create result = OrderOutput.Create.from(orderService.createOrder(input.toCommand()));
-        externalOrderClient.send(result.orderId());
+        paymentService.requestPayment(new PaymentCommand.Request(
+                result.orderId(), input.cardType(), input.cardNo(), result.finalAmount()
+        ));
         return result;
     }
 

@@ -3,6 +3,7 @@ package com.loopers.domain.order;
 import com.loopers.domain.coupon.CouponCommand;
 import com.loopers.domain.coupon.CouponResult;
 import com.loopers.domain.coupon.CouponService;
+import com.loopers.domain.order.attribute.OrderStatus;
 import com.loopers.domain.point.Point;
 import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.product.Product;
@@ -88,6 +89,14 @@ public class OrderService {
                 .stream()
                 .map(OrderResult.Summary::from)
                 .toList();
+    }
+
+    @Transactional
+    public void updateOrderStatus(Long orderId, OrderStatus status) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+        order.updateStatus(status);
+        orderRepository.save(order);
     }
 
     @Transactional(readOnly = true)
