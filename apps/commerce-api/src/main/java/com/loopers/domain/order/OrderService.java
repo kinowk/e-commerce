@@ -24,7 +24,6 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final PointRepository pointRepository;
     private final CouponService couponService;
-    private final ExternalOrderClient externalOrderClient;
 
     @Transactional
     public OrderResult.Create createOrder(OrderCommand.Create command) {
@@ -32,21 +31,17 @@ public class OrderService {
             throw new CoreException(ErrorType.BAD_REQUEST, "주문 항목이 비어있습니다.");
         }
 
-        // 상품 재고 확인 및 차감 (비관적 락)
+        // 상품 재고 확인 및 차감 (비관적 락), 총 금액 계산
         List<Product> orderedProducts = new ArrayList<>();
+        long totalAmount = 0L;
         for (OrderCommand.Create.Item item : command.items()) {
             Product product = productRepository.findByIdForUpdate(item.productId())
                     .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품을 찾을 수 없습니다."));
             product.decreaseStock(item.quantity());
+            totalAmount += product.getPrice() * item.quantity();
             orderedProducts.add(product);
         }
         orderedProducts.forEach(productRepository::save);
-
-        // 총 금액 계산
-        long totalAmount = 0L;
-        for (int i = 0; i < command.items().size(); i++) {
-            totalAmount += orderedProducts.get(i).getPrice() * command.items().get(i).quantity();
-        }
 
         // 쿠폰 적용 (비관적 락은 CouponService 내부에서 처리)
         long discountAmount = 0L;
@@ -83,9 +78,6 @@ public class OrderService {
             );
             savedItems.add(orderRepository.saveItem(item));
         }
-
-        // 외부 시스템 전송
-        externalOrderClient.send(savedOrder.getId());
 
         return OrderResult.Create.of(savedOrder, savedItems);
     }

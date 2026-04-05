@@ -43,6 +43,9 @@ public class Order extends BaseTimeEntity {
         if (totalAmount == null || totalAmount < 0) {
             throw new CoreException(ErrorType.BAD_REQUEST, "주문 금액이 유효하지 않습니다.");
         }
+        if (discountAmount != null && discountAmount < 0) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "할인 금액은 0 이상이어야 합니다.");
+        }
         this.userId = userId;
         this.totalAmount = totalAmount;
         this.discountAmount = discountAmount != null ? discountAmount : 0L;

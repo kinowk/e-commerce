@@ -1,6 +1,5 @@
 package com.loopers.domain.user;
 
-import com.loopers.domain.BaseEntity;
 import com.loopers.domain.BaseTimeEntity;
 import com.loopers.domain.user.attribute.Gender;
 import com.loopers.support.error.CoreException;
@@ -69,43 +68,43 @@ public class User extends BaseTimeEntity {
 
     private void validateUsername(String username) {
         if (!StringUtils.hasText(username)) {
-            throw new CoreException(ErrorType.BAD_REQUEST);
+            throw new CoreException(ErrorType.BAD_REQUEST, "사용자 이름은 필수입니다.");
         }
     }
 
     private void validateLoginId(String loginId) {
         if (!StringUtils.hasText(loginId) || !LOGIN_ID_PATTERN.matcher(loginId).matches()) {
-            throw new CoreException(ErrorType.BAD_REQUEST);
+            throw new CoreException(ErrorType.BAD_REQUEST, "로그인 ID는 영문/숫자 1~10자여야 합니다.");
         }
     }
 
     private void validatePassword(String password) {
         if (!StringUtils.hasText(password)) {
-            throw new CoreException(ErrorType.BAD_REQUEST);
+            throw new CoreException(ErrorType.BAD_REQUEST, "비밀번호는 필수입니다.");
         }
     }
 
     private void validateEmail(String email) {
         if (!StringUtils.hasText(email) || !EMAIL_PATTERN.matcher(email).matches()) {
-            throw new CoreException(ErrorType.BAD_REQUEST);
+            throw new CoreException(ErrorType.BAD_REQUEST, "유효하지 않은 이메일 형식입니다.");
         }
     }
 
     private void validateBirthDate(String birthDate) {
         if (!StringUtils.hasText(birthDate)) {
-            throw new CoreException(ErrorType.BAD_REQUEST);
+            throw new CoreException(ErrorType.BAD_REQUEST, "생년월일은 필수입니다.");
         }
 
         try {
             LocalDate.parse(birthDate, DATE_TIME_FORMATTER);
         } catch (DateTimeParseException e) {
-            throw new CoreException(ErrorType.BAD_REQUEST);
+            throw new CoreException(ErrorType.BAD_REQUEST, "생년월일 형식이 올바르지 않습니다. (yyyy-MM-dd)");
         }
     }
 
     private void validateGender(Gender gender) {
         if (gender == null) {
-            throw new CoreException(ErrorType.BAD_REQUEST);
+            throw new CoreException(ErrorType.BAD_REQUEST, "성별은 필수입니다.");
         }
     }
 

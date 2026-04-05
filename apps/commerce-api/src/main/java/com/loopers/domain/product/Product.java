@@ -13,7 +13,15 @@ import org.springframework.util.StringUtils;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "products")
+@Table(
+        name = "products",
+        indexes = {
+                @Index(name = "idx_products_ref_brand_id", columnList = "ref_brand_id"),
+                @Index(name = "idx_products_status_like_count", columnList = "status, like_count"),
+                @Index(name = "idx_products_status_price", columnList = "status, price"),
+                @Index(name = "idx_products_status_created_at", columnList = "status, created_at")
+        }
+)
 public class Product extends BaseTimeEntity {
 
     @Id

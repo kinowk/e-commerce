@@ -22,5 +22,4 @@ public class PointFacade {
         PointResult.Charge result = pointService.charge(command);
         return PointOutput.Charge.from(result);
     }
-
 }

@@ -56,4 +56,11 @@ public class UserService {
                 .map(UserResult.GetUser::from)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
     }
+
+    @Transactional(readOnly = true)
+    public UserResult.GetUser getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .map(UserResult.GetUser::from)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+    }
 }

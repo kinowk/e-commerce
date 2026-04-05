@@ -2,6 +2,7 @@ package com.loopers.domain.product;
 
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.product.attribute.ProductSortType;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -18,32 +19,44 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
+    private final ProductCacheRepository productCacheRepository;
 
     @Transactional(readOnly = true)
     public ProductResult.Detail getProduct(Long productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
-        Brand brand = brandRepository.findById(product.getBrandId())
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
-        return ProductResult.Detail.of(product, brand);
+        return productCacheRepository.getDetail(productId)
+                .orElseGet(() -> {
+                    Product product = productRepository.findById(productId)
+                            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+                    Brand brand = brandRepository.findById(product.getBrandId())
+                            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+                    ProductResult.Detail detail = ProductResult.Detail.of(product, brand);
+                    productCacheRepository.putDetail(productId, detail);
+                    return detail;
+                });
     }
 
     @Transactional(readOnly = true)
     public ProductResult.List getProducts(ProductCommand.Query query) {
-        List<Product> products = productRepository.findAll(query);
+        String cacheKey = buildListCacheKey(query);
+        return productCacheRepository.getList(cacheKey)
+                .orElseGet(() -> {
+                    List<Product> products = productRepository.findAll(query);
 
-        List<Long> brandIds = products.stream()
-                .map(Product::getBrandId)
-                .distinct()
-                .collect(Collectors.toList());
-        Map<Long, Brand> brandMap = brandRepository.findAllByIdIn(brandIds)
-                .stream()
-                .collect(Collectors.toMap(Brand::getId, b -> b));
+                    List<Long> brandIds = products.stream()
+                            .map(Product::getBrandId)
+                            .distinct()
+                            .toList();
+                    Map<Long, Brand> brandMap = brandRepository.findAllByIdIn(brandIds)
+                            .stream()
+                            .collect(Collectors.toMap(Brand::getId, b -> b));
 
-        return ProductResult.List.of(products, brandMap);
+                    ProductResult.List result = ProductResult.List.of(products, brandMap);
+                    productCacheRepository.putList(cacheKey, result);
+                    return result;
+                });
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Product getProductForOrder(Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
@@ -51,6 +64,14 @@ public class ProductService {
 
     @Transactional
     public Product saveProduct(Product product) {
-        return productRepository.save(product);
+        Product saved = productRepository.save(product);
+        productCacheRepository.evictDetail(saved.getId());
+        return saved;
+    }
+
+    private String buildListCacheKey(ProductCommand.Query query) {
+        String brandId = query.brandId() != null ? String.valueOf(query.brandId()) : "all";
+        String sortType = query.sortType() != null ? query.sortType().name() : ProductSortType.LATEST.name();
+        return brandId + ":" + sortType + ":" + query.page() + ":" + query.size();
     }
 }

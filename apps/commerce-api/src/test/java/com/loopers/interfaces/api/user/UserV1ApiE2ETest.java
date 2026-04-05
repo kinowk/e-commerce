@@ -106,10 +106,14 @@ public class UserV1ApiE2ETest {
             UserRequest.Join joinRequest = new UserRequest.Join(
                     "testuser", "test123", "password123", "test@gmail.com", "1990-01-01", Gender.MALE
             );
-            testRestTemplate.postForEntity(ENDPOINT_JOIN_USER, joinRequest, Void.class);
+            ParameterizedTypeReference<ApiResponse<UserResponse.Join>> joinResponseType = new ParameterizedTypeReference<>() {};
+            ResponseEntity<ApiResponse<UserResponse.Join>> joinResponse = testRestTemplate.exchange(
+                    ENDPOINT_JOIN_USER, HttpMethod.POST, new HttpEntity<>(joinRequest), joinResponseType
+            );
+            Long userId = joinResponse.getBody().data().id();
 
             HttpHeaders headers = new HttpHeaders();
-            headers.set(ApiHeader.X_USER_ID, "test123");
+            headers.set(ApiHeader.X_USER_ID, String.valueOf(userId));
 
             // act
             ParameterizedTypeReference<ApiResponse<UserResponse.GetUser>> responseType = new ParameterizedTypeReference<>() {};
@@ -133,7 +137,7 @@ public class UserV1ApiE2ETest {
         void returns404_whenUserNotFound() {
             // arrange
             HttpHeaders headers = new HttpHeaders();
-            headers.set(ApiHeader.X_USER_ID, "nonexist123");
+            headers.set(ApiHeader.X_USER_ID, "999999");
 
             // act
             ParameterizedTypeReference<ApiResponse<UserResponse.GetUser>> responseType = new ParameterizedTypeReference<>() {};
