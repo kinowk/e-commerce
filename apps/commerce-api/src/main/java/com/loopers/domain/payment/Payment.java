@@ -67,6 +67,9 @@ public class Payment extends BaseTimeEntity {
     }
 
     public void fail(PaymentStatus failStatus) {
+        if (failStatus == PaymentStatus.PENDING || failStatus == PaymentStatus.COMPLETED) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "실패 상태만 설정할 수 있습니다.");
+        }
         this.status = failStatus;
     }
 

@@ -34,6 +34,7 @@ pg:
   callback-url: http://localhost:8080/api/v1/payments/callback
   connect-timeout-ms: 2000
   read-timeout-ms: 3000
+  # 운영 환경별 오버라이드는 아래 profile 섹션에서 설정
 
 resilience4j:
   circuitbreaker:
@@ -67,17 +68,29 @@ spring:
     activate:
       on-profile: dev
 
+pg:
+  base-url: ${PG_BASE_URL:http://pg-simulator:8082}
+  callback-url: ${PG_CALLBACK_URL:http://commerce-api:8080/api/v1/payments/callback}
+
 ---
 spring:
   config:
     activate:
       on-profile: qa
 
+pg:
+  base-url: ${PG_BASE_URL:http://pg-simulator:8082}
+  callback-url: ${PG_CALLBACK_URL:http://commerce-api:8080/api/v1/payments/callback}
+
 ---
 spring:
   config:
     activate:
       on-profile: prd
+
+pg:
+  base-url: ${PG_BASE_URL}
+  callback-url: ${PG_CALLBACK_URL}
 
 springdoc:
   api-docs:

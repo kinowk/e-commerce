@@ -5,7 +5,6 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -26,33 +24,29 @@ public class PgClientImpl implements PgClient {
 
     public PgClientImpl(
             @Qualifier("pgRestTemplate") RestTemplate restTemplate,
-            @Value("${pg.base-url}") String baseUrl
+            PgProperties pgProperties
     ) {
         this.restTemplate = restTemplate;
-        this.baseUrl = baseUrl;
+        this.baseUrl = pgProperties.baseUrl();
     }
 
     @Override
     @CircuitBreaker(name = "pgCircuit", fallbackMethod = "requestPaymentFallback")
     @Retry(name = "pgRetry")
     public String requestPayment(Long orderId, String cardType, String cardNo, Long amount, String callbackUrl) {
-        Map<String, Object> request = Map.of(
-                "orderId", String.valueOf(orderId),
-                "cardType", cardType,
-                "cardNo", cardNo,
-                "amount", String.valueOf(amount),
-                "callbackUrl", callbackUrl
+        PgPaymentRequest request = new PgPaymentRequest(
+                String.valueOf(orderId), cardType, cardNo, String.valueOf(amount), callbackUrl
         );
 
-        Map<?, ?> response = restTemplate.postForObject(
-                baseUrl + "/api/v1/payments", request, Map.class
+        PgPaymentResponse response = restTemplate.postForObject(
+                baseUrl + "/api/v1/payments", request, PgPaymentResponse.class
         );
 
-        if (response == null) {
-            throw new IllegalStateException("PG 서버로부터 응답이 없습니다.");
+        if (response == null || response.transactionId() == null) {
+            throw new IllegalStateException("PG 서버로부터 유효한 응답이 없습니다.");
         }
 
-        return (String) response.get("transactionId");
+        return response.transactionId();
     }
 
     public String requestPaymentFallback(Long orderId, String cardType, String cardNo, Long amount, String callbackUrl, Throwable t) {
@@ -68,33 +62,26 @@ public class PgClientImpl implements PgClient {
                 .queryParam("orderId", orderId)
                 .toUriString();
 
-        ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
+        ResponseEntity<List<PgTransactionDetail>> response = restTemplate.exchange(
                 url, HttpMethod.GET, null,
                 new ParameterizedTypeReference<>() {}
         );
 
-        List<Map<String, Object>> body = response.getBody();
+        List<PgTransactionDetail> body = response.getBody();
         if (body == null || body.isEmpty()) {
             return Optional.empty();
         }
 
-        Map<String, Object> latest = body.get(0);
+        PgTransactionDetail latest = body.get(0);
         return Optional.of(new PgPaymentDetail(
-                (String) latest.get("transactionId"),
-                (String) latest.get("status"),
-                toLong(latest.get("amount"))
+                latest.transactionId(),
+                latest.status(),
+                latest.amount()
         ));
     }
 
     public Optional<PgPaymentDetail> getPaymentByOrderIdFallback(Long orderId, Throwable t) {
         log.warn("[PgClient] 결제 조회 실패 - orderId: {}, reason: {}", orderId, t.getMessage());
         return Optional.empty();
-    }
-
-    private Long toLong(Object value) {
-        if (value instanceof Number n) {
-            return n.longValue();
-        }
-        return null;
     }
 }

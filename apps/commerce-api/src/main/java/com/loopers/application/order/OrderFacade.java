@@ -1,6 +1,7 @@
 package com.loopers.application.order;
 
 import com.loopers.domain.order.OrderService;
+import com.loopers.domain.order.attribute.OrderStatus;
 import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +18,15 @@ public class OrderFacade {
 
     public OrderOutput.Create createOrder(OrderInput.Create input) {
         OrderOutput.Create result = OrderOutput.Create.from(orderService.createOrder(input.toCommand()));
-        paymentService.requestPayment(new PaymentCommand.Request(
-                result.orderId(), input.cardType(), input.cardNo(), result.finalAmount()
-        ));
+
+        if (result.finalAmount() > 0) {
+            paymentService.requestPayment(new PaymentCommand.Request(
+                    result.orderId(), input.cardType(), input.cardNo(), result.finalAmount()
+            ));
+        } else {
+            orderService.updateOrderStatus(result.orderId(), OrderStatus.PAID);
+        }
+
         return result;
     }
 
