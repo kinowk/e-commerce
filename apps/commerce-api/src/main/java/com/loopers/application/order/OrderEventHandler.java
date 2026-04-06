@@ -42,6 +42,11 @@ public class OrderEventHandler {
             }
         } catch (Exception e) {
             log.error("[OrderEventHandler] 결제 요청 실패 - orderId: {}, reason: {}", event.orderId(), e.getMessage(), e);
+            try {
+                orderService.updateOrderStatus(event.orderId(), OrderStatus.FAILED);
+            } catch (Exception ex) {
+                log.error("[OrderEventHandler] 주문 상태 FAILED 변경 실패 - orderId: {}", event.orderId(), ex);
+            }
         }
     }
 
