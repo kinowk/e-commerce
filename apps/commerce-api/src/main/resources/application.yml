@@ -21,6 +21,7 @@ spring:
     import:
       - jpa.yml
       - redis.yml
+      - kafka.yml
       - logging.yml
       - monitoring.yml
 
@@ -35,6 +36,14 @@ pg:
   connect-timeout-ms: 2000
   read-timeout-ms: 3000
   # 운영 환경별 오버라이드는 아래 profile 섹션에서 설정
+
+kafka:
+  topics:
+    catalog-events: catalog-events-v1
+    order-events: order-events-v1
+  outbox:
+    poll-interval-ms: 3000
+    batch-size: 100
 
 resilience4j:
   circuitbreaker:
