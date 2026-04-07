@@ -14,6 +14,15 @@ Spring Boot e-commerce API with strict hexagonal layering: interfaces/api -> app
 - Redis cache (RedisTemplate<String,String> + ObjectMapper) for product detail and list; manual cache key construction
 - ExternalOrderClient is a mock stub (just logs)
 
+**Outbox / Kafka patterns (added April 2026):**
+- Transactional Outbox pattern: OutboxEventListener saves to DB on BEFORE_COMMIT; OutboxRelayScheduler polls and sends via KafkaTemplate
+- @Value fields used alongside @RequiredArgsConstructor — these fields are NOT final and are injected via field injection, not constructor injection; the fields must be declared without `final`
+- OutboxRelayScheduler marks events published BEFORE the async Kafka send completes (race condition)
+- Consumer self-invocation @Transactional anti-pattern: CatalogEventConsumer and OrderEventConsumer call protected processRecord() from within the same class — Spring proxy does not intercept this
+- application.yml in commerce-streamer has duplicate top-level `spring:` keys — second block silently shadows the first in most parsers
+- KafkaEventMessage uses Object payload — serialized immediately to JSON string in OutboxEvent, so the type unsafety is bounded but still fragile
+- Duplicated consumer boilerplate: CatalogEventConsumer and OrderEventConsumer share identical consume() loop, parse+idempotency+log structure in processRecord(), differing only in event routing
+
 **Recurring issues found in first review:**
 - Excessive DTO pass-through layers: Request -> Input -> Command -> Result -> Output -> Response (identical fields copied 4-5 times for Order domain)
 - Silent validation gap: Point.deduct throws BAD_REQUEST with no message; User validation methods throw BAD_REQUEST with no message — callers get unhelpful generic errors
