@@ -12,11 +12,18 @@ public class ProductOutput {
 
     public record Detail(Long id, Long brandId, String brandName, String name,
                          String description, Long price, Long stock,
-                         Long likeCount, ProductStatus status) {
+                         Long likeCount, ProductStatus status,
+                         Long rank, Double rankScore) {
         public static Detail from(ProductResult.Detail result) {
             return new Detail(result.id(), result.brandId(), result.brandName(),
                     result.name(), result.description(), result.price(),
-                    result.stock(), result.likeCount(), result.status());
+                    result.stock(), result.likeCount(), result.status(),
+                    null, null);
+        }
+
+        public Detail withRank(Long rank, Double rankScore) {
+            return new Detail(id, brandId, brandName, name, description, price,
+                    stock, likeCount, status, rank, rankScore);
         }
     }
 

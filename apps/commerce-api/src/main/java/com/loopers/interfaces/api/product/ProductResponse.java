@@ -12,12 +12,14 @@ public class ProductResponse {
 
     public record Detail(Long id, Long brandId, String brandName, String name,
                          String description, Long price, Long stock,
-                         Long likeCount, ProductStatus status) {
+                         Long likeCount, ProductStatus status,
+                         Long rank, Double rankScore) {
         public static Detail from(ProductOutput.Detail output) {
             return new Detail(
                     output.id(), output.brandId(), output.brandName(),
                     output.name(), output.description(), output.price(),
-                    output.stock(), output.likeCount(), output.status()
+                    output.stock(), output.likeCount(), output.status(),
+                    output.rank(), output.rankScore()
             );
         }
     }
