@@ -19,9 +19,12 @@ public class OrderFacade {
     @Transactional
     public OrderOutput.Create createOrder(OrderInput.Create input) {
         OrderOutput.Create result = OrderOutput.Create.from(orderService.createOrder(input.toCommand()));
+        List<OrderCreatedEvent.Item> eventItems = result.items().stream()
+                .map(i -> new OrderCreatedEvent.Item(i.productId(), i.quantity(), i.unitPrice()))
+                .toList();
         eventPublisher.publishEvent(new OrderCreatedEvent(
                 result.orderId(), result.userId(), input.couponId(),
-                input.cardType(), input.cardNo(), result.finalAmount()
+                input.cardType(), input.cardNo(), result.finalAmount(), eventItems
         ));
         return result;
     }
